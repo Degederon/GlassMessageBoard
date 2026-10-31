@@ -12,7 +12,7 @@ from . import helpers as h
 from .board import MessageBoard
 from .const import DOMAIN, EVERYONE, MAX_TEXT, TINTS
 
-SERVICES = ("post", "delete", "pin", "react", "clear", "set_background")
+SERVICES = ("post", "delete", "pin", "react", "clear")
 
 POST_SCHEMA = vol.Schema(
     {
@@ -36,12 +36,6 @@ REACT_SCHEMA = ID_SCHEMA.extend(
     }
 )
 CLEAR_SCHEMA = vol.Schema({vol.Optional("include_pinned", default=False): cv.boolean})
-BACKGROUND_SCHEMA = vol.Schema(
-    {
-        vol.Required("preset"): cv.string,
-        vol.Optional("colors"): vol.Any(cv.string, [cv.string]),
-    }
-)
 
 
 def _board(hass: HomeAssistant) -> MessageBoard:
@@ -89,15 +83,7 @@ def async_register_services(hass: HomeAssistant) -> None:
     async def clear(call: ServiceCall) -> ServiceResponse:
         return {"removed": _board(hass).clear(call.data["include_pinned"])}
 
-    async def set_background(call: ServiceCall) -> None:
-        try:
-            choice = h.background(dict(call.data))
-        except vol.Invalid as err:
-            raise HomeAssistantError(str(err)) from err
-        _board(hass).update_settings(background=choice)
-
     hass.services.async_register(DOMAIN, "post", post, POST_SCHEMA, SupportsResponse.OPTIONAL)
-    hass.services.async_register(DOMAIN, "set_background", set_background, BACKGROUND_SCHEMA)
     hass.services.async_register(DOMAIN, "delete", delete, ID_SCHEMA)
     hass.services.async_register(DOMAIN, "pin", pin, PIN_SCHEMA)
     hass.services.async_register(DOMAIN, "react", react, REACT_SCHEMA)

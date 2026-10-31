@@ -5,11 +5,11 @@
   "codeowners": [],
   "config_flow": true,
   "dependencies": ["frontend", "http", "websocket_api"],
-  "documentation": "https://github.com/Degederon/GlassMessageBoard",
+  "documentation": "https://github.com/your-name/glass-message-board",
   "integration_type": "service",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/Degederon/GlassMessageBoard/issues",
+  "issue_tracker": "https://github.com/your-name/glass-message-board/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "1.2.0"
+  "version": "1.1.0"
 }

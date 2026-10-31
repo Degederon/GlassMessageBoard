@@ -110,33 +110,3 @@ clear:
       default: false
       selector:
         boolean:
-
-set_background:
-  name: Change the background
-  description: Switch the board's colour theme on every screen. Use a preset, or "custom" with three colours.
-  fields:
-    preset:
-      name: Preset
-      required: true
-      default: aurora
-      selector:
-        select:
-          options:
-            - aurora
-            - black
-            - sunset
-            - ocean
-            - forest
-            - lavender
-            - ember
-            - graphite
-            - midnight
-            - halloween
-            - festive
-            - custom
-    colors:
-      name: Custom colours
-      description: Only for "custom". Three colours like "#ff7a45, #ff3d77, #ffc15e".
-      example: "#ff7a45, #ff3d77, #ffc15e"
-      selector:
-        text:
