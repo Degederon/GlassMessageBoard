@@ -9,9 +9,9 @@
 [![Version](https://img.shields.io/badge/version-1.2.2-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![Glass Message Board on a wall tablet](https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/board.png)
-
 </div>
+
+Beautiful design and ease of use. https://github.com/Degederon/GlassMessageBoard
 
 Glass Message Board turns a wall-mounted tablet into a shared space for household notes. Family members can type, dictate or hand-draw messages, address them to one person or to everyone, and react to each other's notes. Important notes can be pinned; everything else expires on schedule. When the tablet is idle, the board fades into an ambient clock that highlights recent notes.
 
