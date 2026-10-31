@@ -123,6 +123,7 @@ set_background:
         select:
           options:
             - aurora
+            - black
             - sunset
             - ocean
             - forest

@@ -31,6 +31,7 @@ TINTS = ["clear", "rose", "amber", "mint", "sky", "violet"]
 # Background colour themes. The card holds the actual colours for each preset.
 BACKGROUND_PRESETS = [
     "aurora",
+    "black",
     "sunset",
     "ocean",
     "forest",

@@ -6,7 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
-- **Background themes:** a palette button opens a picker with ten presets (Aurora, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive) and a custom three-colour option with live preview.
+- **Background themes:** a palette button opens a picker with eleven presets (Aurora, Black, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive) and a custom three-colour option with live preview.
 - The chosen background is saved centrally, so every screen showing the board changes together.
 - New action `glass_messages.set_background` for switching themes from automations.
 

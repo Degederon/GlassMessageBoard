@@ -40,7 +40,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Write, dictate or draw** | Touch-optimized text input with quick emoji, browser-based voice dictation, and a handwriting pad with six ink colors, three pen sizes and undo. |
 | **Pinning and expiry** | Notes can last 1 hour, until tonight, 1 day, 1 week, or indefinitely. Pinned notes never expire and always appear first. |
 | **Reactions and replies** | Open any note to react, reply to the sender, pin it or delete it. |
-| **Background themes** | Ten colour presets, including seasonal ones, plus your own three-colour mix. Changes apply to every screen at once. |
+| **Background themes** | Eleven colour presets, including seasonal ones, plus your own three-colour mix. Changes apply to every screen at once. |
 | **Ambient mode** | After a configurable idle period, the board shows a large clock and a rotating spotlight of notes, prioritizing those for the current user. |
 | **Automation support** | Actions, a new-message event and per-person sensors let automations post notes and respond to them. |
 | **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
@@ -194,7 +194,7 @@ If someone isn't on the board yet, select **Add name** in step 2 or 3 and type t
 
 <p align="center"><img src="docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
 
-Available presets: Aurora, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
+Available presets: Aurora, Black, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
 
 ### What happens automatically
 

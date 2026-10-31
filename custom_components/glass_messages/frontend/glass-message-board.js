@@ -34,6 +34,7 @@
   // Background themes: base colour plus three glow colours. Aurora is the default.
   const BACKGROUNDS = {
     aurora: { name: "Aurora", base: "#070b1c", colors: ["#5b6cff", "#ff5fa2", "#22d3c5"] },
+    black: { name: "Black", base: "#000000", colors: ["#2c2c30", "#1f1f24", "#3a3a40"] },
     sunset: { name: "Sunset", base: "#1a0a10", colors: ["#ff7a45", "#ff3d77", "#ffc15e"] },
     ocean: { name: "Ocean", base: "#021321", colors: ["#1e88e5", "#00bcd4", "#5c6bc0"] },
     forest: { name: "Forest", base: "#06130c", colors: ["#43a047", "#9ccc65", "#00897b"] },
