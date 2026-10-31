@@ -174,6 +174,7 @@ To change someone later, open **People** and select **Edit** or **Remove** (sele
    - **Stickers**: on the **Draw** tab, scroll below the ink colours to the **Stickers** row and tap any sticker to add it to the note. There are 17, including a heart, sun, star, cake, gift and balloon. Add several, draw around them, and use **undo** to remove the last one.
 
      <p align="center"><img src="docs/images/stickers.png" alt="The sticker shelf on the Draw tab" width="70%"></p>
+
 5. Optional: select **More options** to choose a note colour, how long it stays (1 hour to Keep), or **Pin** it so it never expires.
 6. Select **Send to [name]**.
 
