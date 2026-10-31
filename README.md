@@ -72,14 +72,14 @@ Follow these parts in order. Each one only needs to be done once.
 
 1. Go to **Settings → Marketplace**.
 2. The first time, read the community-content warning and confirm.
-3. Choose **Add via link**, paste this repository's URL, and choose **Integration** if asked. You may be asked to connect your GitHub account.
+3. Choose **Add via link**, paste `https://github.com/Degederon/GlassMessageBoard`, and choose **Integration** if asked. You may be asked to connect your GitHub account.
 4. Open **Glass Message Board** and select **Install**.
 5. Restart Home Assistant: **Settings → System**, select the power icon (top right), then **Restart Home Assistant**.
 
 **Using HACS (earlier versions)**
 
 1. In HACS, open the menu (⋮) and select **Custom repositories**.
-2. Paste this repository's URL, choose the category **Integration**, and select **Add**.
+2. Paste `https://github.com/Degederon/GlassMessageBoard`, choose the category **Integration**, and select **Add**.
 3. Search for **Glass Message Board** and install it.
 4. Restart Home Assistant.
 

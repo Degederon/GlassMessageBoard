@@ -1495,7 +1495,7 @@
     name: "Glass Message Board",
     description: "A frosted-glass household message board with handwriting, dictation and reactions.",
     preview: false,
-    documentationURL: "https://github.com/your-name/glass-message-board",
+    documentationURL: "https://github.com/Degederon/GlassMessageBoard",
   });
   console.info(`%c GLASS MESSAGE BOARD %c ${VERSION} `, "background:#5b6cff;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#ff5fa2;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
 })();
