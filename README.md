@@ -38,6 +38,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Simple people setup** | Add household members right on the board with a name, emoji picture and colour. No Home Assistant accounts required. Existing Home Assistant users can be shown too. |
 | **Guided note form** | Three clear steps: who's writing, who it's for, and the message. Advanced options stay tucked away until needed. |
 | **Write, dictate or draw** | Touch-optimized text input with quick emoji, browser-based voice dictation, and a handwriting pad with six ink colors, three pen sizes and undo. |
+| **Stickers** | Seventeen ready-made doodles (heart, sun, star, cake, gift, balloon and more) to tap onto a note and combine with your own drawing. |
 | **Pinning and expiry** | Notes can last 1 hour, until tonight, 1 day, 1 week, or indefinitely. Pinned notes never expire and always appear first. |
 | **Reactions and replies** | Open any note to react, reply to the sender, pin it or delete it. |
 | **Background themes** | Eleven colour presets, including seasonal ones, plus your own three-colour mix. Changes apply to every screen at once. |
@@ -170,6 +171,7 @@ To change someone later, open **People** and select **Edit** or **Remove** (sele
    - **Type** in the box. Select an emoji from the row to insert it.
    - **Speak**: select the **microphone**, talk, then select it again to stop.
    - **Draw**: open the **Draw** tab and draw with your finger. Choose ink colours and pen sizes; **undo** removes the last line.
+   - **Stickers**: on the **Draw** tab, tap any sticker under **Stickers** to add it to the note. Add several, draw around them, and use **undo** to remove the last one.
 5. Optional: select **More options** to choose a note colour, how long it stays (1 hour to Keep), or **Pin** it so it never expires.
 6. Select **Send to [name]**.
 
@@ -193,6 +195,8 @@ If someone isn't on the board yet, select **Add name** in step 2 or 3 and type t
 4. Close the window with **X**.
 
 <p align="center"><img src="docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
+
+<p align="center"><img src="docs/images/stickers.png" alt="The sticker shelf on the Draw tab" width="70%"></p>
 
 Available presets: Aurora, Black, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
 

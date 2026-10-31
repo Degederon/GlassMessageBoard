@@ -31,6 +31,175 @@
   const AVATAR_HUES = [200, 280, 330, 20, 150, 50, 240, 100];
   const MEMBER_EMOJI = ["🙂", "😎", "🥰", "🤓", "🦊", "🐱", "🐶", "🐼", "🦄", "🐸", "🌻", "🌙", "⭐", "🚀", "🎸", "⚽", "🍩", "👵", "👴", "👶"];
   const HUES = [210, 260, 300, 340, 15, 40, 140, 175];
+  // Ready-made doodles. Points are in a 0..1 square; each sticker is a list of [colour, points].
+  const STICKERS = (() => {
+    const TAU = Math.PI * 2;
+    const r4 = (v) => Math.round(v * 10000) / 10000;
+    const P = (pts) => pts.map(([x, y]) => [r4(x), r4(y)]);
+    const arc = (cx, cy, rx, ry, a0, a1, n = 28) =>
+      P(Array.from({ length: n + 1 }, (_, i) => {
+        const t = a0 + ((a1 - a0) * i) / n;
+        return [cx + rx * Math.cos(t), cy + ry * Math.sin(t)];
+      }));
+    const ring = (cx, cy, rx, ry = rx, n = 32) => arc(cx, cy, rx, ry, 0, TAU, n);
+    // Repeat each corner so the pen smoothing keeps it sharp.
+    const line = (...pts) => P(pts.flatMap((pt, i) => (i === 0 || i === pts.length - 1 ? [pt] : [pt, pt, pt])));
+    const deg = (d) => (d * Math.PI) / 180;
+    const quad = (a, c, b, n = 16) =>
+      P(Array.from({ length: n + 1 }, (_, i) => {
+        const t = i / n;
+        return [0, 1].map((k) => (1 - t) * (1 - t) * a[k] + 2 * (1 - t) * t * c[k] + t * t * b[k]);
+      }));
+    const wave = (x, y0, y1, amp, n = 20) =>
+      P(Array.from({ length: n + 1 }, (_, i) => [x + amp * Math.sin((i / n) * TAU), y0 + ((y1 - y0) * i) / n]));
+    const heart = P(
+      Array.from({ length: 49 }, (_, i) => {
+        const t = (i / 48) * TAU;
+        const x = 16 * Math.sin(t) ** 3;
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        return [0.5 + (x / 16) * 0.4, 0.52 - (y / 16) * 0.4];
+      })
+    );
+    const star = P(
+      Array.from({ length: 11 }, (_, i) => {
+        const a = deg(-90 + i * 36);
+        const rad = i % 2 ? 0.18 : 0.42;
+        return [0.5 + rad * Math.cos(a), 0.54 + rad * Math.sin(a)];
+      })
+    );
+    const moonStart = [0.5 + 0.38 * Math.cos(deg(300)), 0.5 + 0.38 * Math.sin(deg(300))];
+    const moonEnd = [0.5 + 0.38 * Math.cos(deg(60)), 0.5 + 0.38 * Math.sin(deg(60))];
+    const Y = "#ffe066", PINK = "#ff8fab", CYAN = "#7ee8fa", GREEN = "#81c784", ORANGE = "#ffb26b", WHITE = "#ffffff", LILAC = "#e1bee7", MINT = "#b4f8c8";
+    return {
+      heart: { name: "Heart", parts: [[PINK, heart]] },
+      sun: {
+        name: "Sun",
+        parts: [
+          [Y, ring(0.5, 0.5, 0.2)],
+          ...Array.from({ length: 8 }, (_, i) => {
+            const a = (i / 8) * TAU;
+            return [Y, line([0.5 + 0.29 * Math.cos(a), 0.5 + 0.29 * Math.sin(a)], [0.5 + 0.42 * Math.cos(a), 0.5 + 0.42 * Math.sin(a)])];
+          }),
+        ],
+      },
+      star: { name: "Star", parts: [[Y, star]] },
+      moon: { name: "Moon", parts: [[Y, [...arc(0.5, 0.5, 0.38, 0.38, deg(60), deg(300)), ...quad(moonStart, [0.3, 0.5], moonEnd).slice(1)]]] },
+      flower: {
+        name: "Flower",
+        parts: [
+          ...Array.from({ length: 6 }, (_, i) => {
+            const a = (i / 6) * TAU;
+            return [PINK, ring(0.5 + 0.17 * Math.cos(a), 0.36 + 0.17 * Math.sin(a), 0.09, 0.09, 20)];
+          }),
+          [Y, ring(0.5, 0.36, 0.07, 0.07, 18)],
+          [GREEN, line([0.5, 0.55], [0.5, 0.96])],
+          [GREEN, quad([0.5, 0.82], [0.66, 0.66], [0.72, 0.8])],
+        ],
+      },
+      smile: {
+        name: "Smile",
+        parts: [
+          [Y, ring(0.5, 0.5, 0.4)],
+          [Y, line([0.37, 0.38], [0.37, 0.46])],
+          [Y, line([0.63, 0.38], [0.63, 0.46])],
+          [Y, arc(0.5, 0.52, 0.2, 0.18, deg(20), deg(160), 18)],
+        ],
+      },
+      house: {
+        name: "Home",
+        parts: [
+          [CYAN, line([0.12, 0.52], [0.5, 0.14], [0.88, 0.52])],
+          [CYAN, line([0.22, 0.44], [0.22, 0.9], [0.78, 0.9], [0.78, 0.44])],
+          [ORANGE, line([0.43, 0.9], [0.43, 0.66], [0.57, 0.66], [0.57, 0.9])],
+          [Y, line([0.62, 0.56], [0.72, 0.56], [0.72, 0.66], [0.62, 0.66], [0.62, 0.56])],
+        ],
+      },
+      cake: {
+        name: "Cake",
+        parts: [
+          [PINK, line([0.18, 0.56], [0.18, 0.9], [0.82, 0.9], [0.82, 0.56], [0.18, 0.56])],
+          [WHITE, P(Array.from({ length: 25 }, (_, i) => [0.18 + (0.64 * i) / 24, 0.68 + 0.03 * Math.sin((i / 24) * TAU * 3)]))],
+          [CYAN, line([0.5, 0.56], [0.5, 0.36])],
+          [ORANGE, [...arc(0.5, 0.29, 0.04, 0.06, deg(0), deg(180), 10), [0.5, 0.18], [0.54, 0.29]]],
+        ],
+      },
+      gift: {
+        name: "Gift",
+        parts: [
+          [MINT, line([0.2, 0.44], [0.2, 0.9], [0.8, 0.9], [0.8, 0.44])],
+          [MINT, line([0.14, 0.32], [0.86, 0.32], [0.86, 0.44], [0.14, 0.44], [0.14, 0.32])],
+          [PINK, line([0.5, 0.32], [0.5, 0.9])],
+          [PINK, ring(0.41, 0.23, 0.09, 0.07, 18)],
+          [PINK, ring(0.59, 0.23, 0.09, 0.07, 18)],
+        ],
+      },
+      coffee: {
+        name: "Coffee",
+        parts: [
+          [ORANGE, line([0.22, 0.42], [0.28, 0.88], [0.64, 0.88], [0.7, 0.42], [0.22, 0.42])],
+          [ORANGE, arc(0.71, 0.6, 0.11, 0.11, deg(-80), deg(80), 14)],
+          [WHITE, wave(0.38, 0.34, 0.1, 0.03, 14)],
+          [WHITE, wave(0.54, 0.34, 0.1, 0.03, 14)],
+        ],
+      },
+      rain: {
+        name: "Rain",
+        parts: [
+          [WHITE, [...arc(0.3, 0.46, 0.1, 0.1, deg(90), deg(270), 12), ...arc(0.46, 0.36, 0.15, 0.15, deg(190), deg(340), 14), ...arc(0.67, 0.42, 0.12, 0.12, deg(220), deg(360), 12), ...arc(0.76, 0.47, 0.09, 0.09, deg(-90), deg(90), 10), [0.3, 0.56]]],
+          [CYAN, line([0.36, 0.66], [0.32, 0.78])],
+          [CYAN, line([0.52, 0.66], [0.48, 0.82])],
+          [CYAN, line([0.68, 0.66], [0.64, 0.78])],
+        ],
+      },
+      music: {
+        name: "Music",
+        parts: [
+          [LILAC, ring(0.35, 0.76, 0.1, 0.07, 18)],
+          [LILAC, ring(0.69, 0.69, 0.1, 0.07, 18)],
+          [LILAC, line([0.45, 0.75], [0.45, 0.2], [0.79, 0.14], [0.79, 0.68])],
+          [LILAC, line([0.45, 0.32], [0.79, 0.26])],
+        ],
+      },
+      balloon: {
+        name: "Balloon",
+        parts: [
+          [PINK, ring(0.5, 0.36, 0.22, 0.28)],
+          [PINK, line([0.46, 0.7], [0.5, 0.64], [0.54, 0.7], [0.46, 0.7])],
+          [WHITE, wave(0.5, 0.7, 0.98, 0.04, 16)],
+        ],
+      },
+      pumpkin: {
+        name: "Pumpkin",
+        parts: [
+          [ORANGE, ring(0.5, 0.6, 0.36, 0.27)],
+          [ORANGE, ring(0.5, 0.6, 0.14, 0.27, 24)],
+          [GREEN, quad([0.5, 0.34], [0.49, 0.22], [0.58, 0.16], 8)],
+        ],
+      },
+      paw: {
+        name: "Paw",
+        parts: [
+          [ORANGE, ring(0.5, 0.66, 0.18, 0.15)],
+          [ORANGE, ring(0.28, 0.42, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.42, 0.28, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.58, 0.28, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.72, 0.42, 0.07, 0.08, 16)],
+        ],
+      },
+      pizza: {
+        name: "Pizza",
+        parts: [
+          [Y, line([0.18, 0.2], [0.82, 0.2], [0.5, 0.9], [0.18, 0.2])],
+          [ORANGE, line([0.16, 0.14], [0.84, 0.14])],
+          [PINK, ring(0.41, 0.33, 0.05, 0.05, 12)],
+          [PINK, ring(0.59, 0.35, 0.05, 0.05, 12)],
+          [PINK, ring(0.5, 0.55, 0.05, 0.05, 12)],
+        ],
+      },
+      check: { name: "Done", parts: [[MINT, line([0.18, 0.55], [0.4, 0.78], [0.84, 0.24])]] },
+    };
+  })();
+
   // Background themes: base colour plus three glow colours. Aurora is the default.
   const BACKGROUNDS = {
     aurora: { name: "Aurora", base: "#070b1c", colors: ["#5b6cff", "#ff5fa2", "#22d3c5"] },
@@ -173,6 +342,13 @@
   .text.lg { font-size: 22px; line-height:1.3; }
   .text.xl { font-size: clamp(26px, 2.6vw, 34px); line-height:1.15; font-weight:500; letter-spacing:-.01em; }
   .drawing { display:block; width:100%; height:auto; margin-top:12px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+  .sticker-shelf { margin-top: 12px; }
+  .sticker-shelf .label { margin: 0 0 8px; }
+  .sticker-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .sticker { width:58px; height:58px; padding:7px; border-radius:16px; background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); transition: transform .15s, background .2s; }
+  .sticker:hover { background: rgba(255,255,255,.16); }
+  .sticker:active { transform: scale(.9); }
+  .sticker .drawing { margin:0; }
   .drawing path { fill:none; stroke-linecap:round; stroke-linejoin:round; }
   footer { display:flex; align-items:center; gap:6px; margin-top:12px; flex-wrap:wrap; min-height: 6px; }
   .rx { display:inline-flex; align-items:center; gap:4px; padding: 3px 9px; border-radius:999px; background: rgba(255,255,255,.12); font-size:14px; }
@@ -910,6 +1086,8 @@
         ink: INK[0],
         width: WIDTHS[1],
         strokes: [],
+        groups: [],
+        stickersPlaced: 0,
         sending: false,
       };
       const scrim = this.shadowRoot.querySelector(".compose-scrim");
@@ -936,7 +1114,7 @@
               </div>
             </div>
             <div class="pane-draw" hidden>
-              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger ✨</div></div>
+              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger, or tap a sticker below ✨</div></div>
               <div class="tools">
                 ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="Ink ${c}"></button>`).join("")}
                 <span style="width:10px"></span>
@@ -944,6 +1122,12 @@
                 <span style="flex:1"></span>
                 <button class="icon-btn" data-action="c-undo" aria-label="Undo">${ICON.undo}</button>
                 <button class="icon-btn" data-action="c-clear" aria-label="Clear drawing">${ICON.trash}</button>
+              </div>
+              <div class="sticker-shelf">
+                <div class="label">Stickers</div>
+                <div class="sticker-row">${Object.entries(STICKERS)
+                  .map(([k, st]) => `<button class="sticker" data-action="c-sticker" data-sticker="${k}" aria-label="Add ${esc(st.name)} sticker" title="${esc(st.name)}">${this._drawingSVG({ ar: 1, strokes: st.parts.map(([c, pts]) => ({ c, w: 0.05, p: pts })) })}</button>`)
+                  .join("")}</div>
               </div>
             </div>
           </section>
@@ -1125,13 +1309,21 @@
         case "c-width":
           c.width = Number(el.dataset.w);
           break;
-        case "c-undo":
-          c.strokes.pop();
+        case "c-undo": {
+          const n = c.groups.pop() || 1;
+          c.strokes.splice(-n, n);
+          if (!c.strokes.length) c.stickersPlaced = 0;
           this._redrawPad();
           break;
+        }
         case "c-clear":
           c.strokes = [];
+          c.groups = [];
+          c.stickersPlaced = 0;
           this._redrawPad();
+          break;
+        case "c-sticker":
+          this._placeSticker(el.dataset.sticker);
           break;
         case "c-emoji": {
           const pos = ta.selectionStart ?? ta.value.length;
@@ -1496,6 +1688,7 @@
         canvas.setPointerCapture(e.pointerId);
         const stroke = { c: this._compose.ink, w: this._compose.width, p: [point(e).map((v) => +v.toFixed(4))] };
         this._compose.strokes.push(stroke);
+        this._compose.groups.push(1);
         this._pad.active = stroke;
         this._redrawPad();
         this._syncCompose();
@@ -1514,6 +1707,28 @@
       const end = () => (this._pad.active = null);
       canvas.addEventListener("pointerup", end);
       canvas.addEventListener("pointercancel", end);
+    }
+
+    _placeSticker(key) {
+      const c = this._compose;
+      const st = STICKERS[key];
+      if (!c || !st) return;
+      const ar = this._padAspect || 16 / 9;
+      const size = 0.4; // fraction of pad height
+      const w = size / ar;
+      const cols = Math.max(1, Math.floor(0.92 / (w * 1.15)));
+      const slot = c.stickersPlaced % (cols * 2);
+      const col = slot % cols;
+      const row = Math.floor(slot / cols);
+      const gap = (1 - cols * w) / (cols + 1);
+      const x0 = gap + col * (w + gap);
+      const y0 = row ? 0.54 : 0.06;
+      const r4 = (v) => Math.round(Math.min(1, Math.max(0, v)) * 10000) / 10000;
+      const added = st.parts.map(([color, pts]) => ({ c: color, w: 0.011, p: pts.map(([x, y]) => [r4(x0 + x * w), r4(y0 + y * size)]) }));
+      c.strokes.push(...added);
+      c.groups.push(added.length);
+      c.stickersPlaced++;
+      this._redrawPad();
     }
 
     _resizePad() {
