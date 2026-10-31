@@ -233,11 +233,12 @@ def ws_member_remove(hass: HomeAssistant, connection: websocket_api.ActiveConnec
     {
         vol.Required("type"): "glass_messages/settings",
         vol.Optional("include_ha_people"): bool,
+        vol.Optional("background"): h.background,
     }
 )
 @callback
 def ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg) -> None:
     if (board := _board(hass, connection, msg)) is None:
         return
-    changes = {k: v for k, v in msg.items() if k == "include_ha_people"}
+    changes = {k: v for k, v in msg.items() if k in ("include_ha_people", "background")}
     connection.send_result(msg["id"], board.update_settings(**changes))

@@ -6,7 +6,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.1.0-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.0-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![Glass Message Board on a wall tablet](docs/images/board.png)
@@ -38,8 +38,10 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Simple people setup** | Add household members right on the board with a name, emoji picture and colour. No Home Assistant accounts required. Existing Home Assistant users can be shown too. |
 | **Guided note form** | Three clear steps: who's writing, who it's for, and the message. Advanced options stay tucked away until needed. |
 | **Write, dictate or draw** | Touch-optimized text input with quick emoji, browser-based voice dictation, and a handwriting pad with six ink colors, three pen sizes and undo. |
+| **Stickers** | Seventeen ready-made doodles (heart, sun, star, cake, gift, balloon and more) to tap onto a note and combine with your own drawing. |
 | **Pinning and expiry** | Notes can last 1 hour, until tonight, 1 day, 1 week, or indefinitely. Pinned notes never expire and always appear first. |
 | **Reactions and replies** | Open any note to react, reply to the sender, pin it or delete it. |
+| **Background themes** | Eleven colour presets, including seasonal ones, plus your own three-colour mix. Changes apply to every screen at once. |
 | **Ambient mode** | After a configurable idle period, the board shows a large clock and a rotating spotlight of notes, prioritizing those for the current user. |
 | **Automation support** | Actions, a new-message event and per-person sensors let automations post notes and respond to them. |
 | **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
@@ -72,14 +74,14 @@ Follow these parts in order. Each one only needs to be done once.
 
 1. Go to **Settings → Marketplace**.
 2. The first time, read the community-content warning and confirm.
-3. Choose **Add via link**, paste this repository's URL, and choose **Integration** if asked. You may be asked to connect your GitHub account.
+3. Choose **Add via link**, paste `https://github.com/Degederon/GlassMessageBoard`, and choose **Integration** if asked. You may be asked to connect your GitHub account.
 4. Open **Glass Message Board** and select **Install**.
 5. Restart Home Assistant: **Settings → System**, select the power icon (top right), then **Restart Home Assistant**.
 
 **Using HACS (earlier versions)**
 
 1. In HACS, open the menu (⋮) and select **Custom repositories**.
-2. Paste this repository's URL, choose the category **Integration**, and select **Add**.
+2. Paste `https://github.com/Degederon/GlassMessageBoard`, choose the category **Integration**, and select **Add**.
 3. Search for **Glass Message Board** and install it.
 4. Restart Home Assistant.
 
@@ -169,6 +171,7 @@ To change someone later, open **People** and select **Edit** or **Remove** (sele
    - **Type** in the box. Select an emoji from the row to insert it.
    - **Speak**: select the **microphone**, talk, then select it again to stop.
    - **Draw**: open the **Draw** tab and draw with your finger. Choose ink colours and pen sizes; **undo** removes the last line.
+   - **Stickers**: on the **Draw** tab, tap any sticker under **Stickers** to add it to the note. Add several, draw around them, and use **undo** to remove the last one.
 5. Optional: select **More options** to choose a note colour, how long it stays (1 hour to Keep), or **Pin** it so it never expires.
 6. Select **Send to [name]**.
 
@@ -183,6 +186,19 @@ If someone isn't on the board yet, select **Add name** in step 2 or 3 and type t
   - Select **Reply** to write back to the sender.
   - Select **Pin** or **Unpin**.
   - Select **Delete**, then select it again to confirm.
+
+### Part 8: Change the background (optional)
+
+1. Select the **palette** button in the header, next to **People**.
+2. Select a theme. The board changes straight away on every screen. **Aurora** is the default.
+3. To use your own colours, change **Colour 1**, **Colour 2** and **Colour 3** under **Your own colours**. The board previews each change. Select **Use my colours** to keep them.
+4. Close the window with **X**.
+
+<p align="center"><img src="docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
+
+<p align="center"><img src="docs/images/stickers.png" alt="The sticker shelf on the Draw tab" width="70%"></p>
+
+Available presets: Aurora, Black, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
 
 ### What happens automatically
 
@@ -244,6 +260,7 @@ For Home Assistant `person` entities, and for extra settings, go to **Settings �
 | `glass_messages.pin` | Pins or unpins a note. | `id`, `pinned` |
 | `glass_messages.react` | Toggles an emoji reaction. | `id`, `emoji`, `from` |
 | `glass_messages.clear` | Removes all notes. Returns the number removed. | `include_pinned` |
+| `glass_messages.set_background` | Changes the board's colour theme on every screen. | `preset`, `colors` |
 
 ### `glass_messages.post` fields
 
@@ -324,11 +341,28 @@ actions:
       tint: amber
 ```
 
+### Switch to a seasonal background
+
+```yaml
+triggers:
+  - trigger: time
+    at: "00:00:00"
+conditions:
+  - condition: template
+    value_template: "{{ now().month == 10 and now().day == 31 }}"
+actions:
+  - action: glass_messages.set_background
+    data:
+      preset: halloween
+```
+
+To use your own colours from an automation, set `preset: custom` and `colors: "#ff7a45, #ff3d77, #ffc15e"`. To go back to the default, set `preset: aurora`.
+
 ## Permissions and data
 
 | Action | Allowed for |
 |---|---|
-| Post, react, pin, manage people | All users |
+| Post, react, pin, manage people, change the background | All users |
 | Delete | Administrators, the sender and the recipient |
 
 - Notes are stored locally in `.storage/glass_messages.messages`. No data leaves your Home Assistant instance except through the notification services you configure.
@@ -348,7 +382,7 @@ Custom frontends can use the following commands:
 | `glass_messages/react` | Toggles a reaction. |
 | `glass_messages/member/save` | Adds or updates a board member. |
 | `glass_messages/member/remove` | Removes a board member. |
-| `glass_messages/settings` | Shows or hides Home Assistant users on the board. |
+| `glass_messages/settings` | Shows or hides Home Assistant users, and changes the background. |
 
 ## Troubleshooting
 
