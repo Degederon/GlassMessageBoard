@@ -1,0 +1,9 @@
+# Python cache files created when Home Assistant runs the integration
+__pycache__/
+*.pyc
+
+# Editor and OS clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -13,6 +13,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     EVENT_NEW_MESSAGE,
+    DEFAULT_BACKGROUND,
     EVERYONE,
     MAX_MEMBERS,
     MAX_MESSAGES,
@@ -30,7 +31,10 @@ class MessageBoard:
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self._messages: dict[str, dict[str, Any]] = {}
         self._members: dict[str, dict[str, Any]] = {}
-        self._settings: dict[str, Any] = {"include_ha_people": True}
+        self._settings: dict[str, Any] = {
+            "include_ha_people": True,
+            "background": dict(DEFAULT_BACKGROUND),
+        }
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -57,7 +61,7 @@ class MessageBoard:
 
     @property
     def settings(self) -> dict[str, Any]:
-        return dict(self._settings)
+        return {**self._settings, "background": dict(self._settings["background"])}
 
     def get_member(self, member_id: str | None) -> dict[str, Any] | None:
         return self._members.get(member_id) if member_id else None

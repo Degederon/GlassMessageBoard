@@ -12,6 +12,8 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    BACKGROUND_CUSTOM,
+    BACKGROUND_PRESETS,
     DOMAIN,
     EVERYONE,
     MEMBER_PREFIX,
@@ -21,6 +23,28 @@ from .const import (
 )
 
 _COLOR_RE = re.compile(r"^#[0-9a-fA-F]{3,8}$")
+_HEX6_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def background(value: Any) -> dict[str, Any]:
+    """Validate a background choice: a preset name, or 'custom' with three #rrggbb colours."""
+    if isinstance(value, str):
+        value = {"preset": value}
+    if not isinstance(value, dict):
+        raise vol.Invalid("background must be a preset name or an object")
+    preset = str(value.get("preset", "")).strip().lower()
+    if preset not in (*BACKGROUND_PRESETS, BACKGROUND_CUSTOM):
+        raise vol.Invalid(
+            f"unknown background '{preset}'; use one of {', '.join(BACKGROUND_PRESETS)} or custom"
+        )
+    colors = value.get("colors") or []
+    if isinstance(colors, str):
+        colors = [c.strip() for c in colors.split(",") if c.strip()]
+    if preset == BACKGROUND_CUSTOM:
+        if len(colors) != 3 or not all(isinstance(c, str) and _HEX6_RE.match(c) for c in colors):
+            raise vol.Invalid("a custom background needs three colours like #3366ff")
+        return {"preset": preset, "colors": [c.lower() for c in colors]}
+    return {"preset": preset, "colors": []}
 
 
 @callback

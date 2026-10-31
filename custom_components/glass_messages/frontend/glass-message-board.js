@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.1";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
@@ -31,6 +31,197 @@
   const AVATAR_HUES = [200, 280, 330, 20, 150, 50, 240, 100];
   const MEMBER_EMOJI = ["🙂", "😎", "🥰", "🤓", "🦊", "🐱", "🐶", "🐼", "🦄", "🐸", "🌻", "🌙", "⭐", "🚀", "🎸", "⚽", "🍩", "👵", "👴", "👶"];
   const HUES = [210, 260, 300, 340, 15, 40, 140, 175];
+  // Ready-made doodles. Points are in a 0..1 square; each sticker is a list of [colour, points].
+  const STICKERS = (() => {
+    const TAU = Math.PI * 2;
+    const r4 = (v) => Math.round(v * 10000) / 10000;
+    const P = (pts) => pts.map(([x, y]) => [r4(x), r4(y)]);
+    const arc = (cx, cy, rx, ry, a0, a1, n = 28) =>
+      P(Array.from({ length: n + 1 }, (_, i) => {
+        const t = a0 + ((a1 - a0) * i) / n;
+        return [cx + rx * Math.cos(t), cy + ry * Math.sin(t)];
+      }));
+    const ring = (cx, cy, rx, ry = rx, n = 32) => arc(cx, cy, rx, ry, 0, TAU, n);
+    // Repeat each corner so the pen smoothing keeps it sharp.
+    const line = (...pts) => P(pts.flatMap((pt, i) => (i === 0 || i === pts.length - 1 ? [pt] : [pt, pt, pt])));
+    const deg = (d) => (d * Math.PI) / 180;
+    const quad = (a, c, b, n = 16) =>
+      P(Array.from({ length: n + 1 }, (_, i) => {
+        const t = i / n;
+        return [0, 1].map((k) => (1 - t) * (1 - t) * a[k] + 2 * (1 - t) * t * c[k] + t * t * b[k]);
+      }));
+    const wave = (x, y0, y1, amp, n = 20) =>
+      P(Array.from({ length: n + 1 }, (_, i) => [x + amp * Math.sin((i / n) * TAU), y0 + ((y1 - y0) * i) / n]));
+    const heart = P(
+      Array.from({ length: 49 }, (_, i) => {
+        const t = (i / 48) * TAU;
+        const x = 16 * Math.sin(t) ** 3;
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        return [0.5 + (x / 16) * 0.4, 0.52 - (y / 16) * 0.4];
+      })
+    );
+    const star = P(
+      Array.from({ length: 11 }, (_, i) => {
+        const a = deg(-90 + i * 36);
+        const rad = i % 2 ? 0.18 : 0.42;
+        return [0.5 + rad * Math.cos(a), 0.54 + rad * Math.sin(a)];
+      })
+    );
+    const moonStart = [0.5 + 0.38 * Math.cos(deg(300)), 0.5 + 0.38 * Math.sin(deg(300))];
+    const moonEnd = [0.5 + 0.38 * Math.cos(deg(60)), 0.5 + 0.38 * Math.sin(deg(60))];
+    const Y = "#ffe066", PINK = "#ff8fab", CYAN = "#7ee8fa", GREEN = "#81c784", ORANGE = "#ffb26b", WHITE = "#ffffff", LILAC = "#e1bee7", MINT = "#b4f8c8";
+    return {
+      heart: { name: "Heart", parts: [[PINK, heart]] },
+      sun: {
+        name: "Sun",
+        parts: [
+          [Y, ring(0.5, 0.5, 0.2)],
+          ...Array.from({ length: 8 }, (_, i) => {
+            const a = (i / 8) * TAU;
+            return [Y, line([0.5 + 0.29 * Math.cos(a), 0.5 + 0.29 * Math.sin(a)], [0.5 + 0.42 * Math.cos(a), 0.5 + 0.42 * Math.sin(a)])];
+          }),
+        ],
+      },
+      star: { name: "Star", parts: [[Y, star]] },
+      moon: { name: "Moon", parts: [[Y, [...arc(0.5, 0.5, 0.38, 0.38, deg(60), deg(300)), ...quad(moonStart, [0.3, 0.5], moonEnd).slice(1)]]] },
+      flower: {
+        name: "Flower",
+        parts: [
+          ...Array.from({ length: 6 }, (_, i) => {
+            const a = (i / 6) * TAU;
+            return [PINK, ring(0.5 + 0.17 * Math.cos(a), 0.36 + 0.17 * Math.sin(a), 0.09, 0.09, 20)];
+          }),
+          [Y, ring(0.5, 0.36, 0.07, 0.07, 18)],
+          [GREEN, line([0.5, 0.55], [0.5, 0.96])],
+          [GREEN, quad([0.5, 0.82], [0.66, 0.66], [0.72, 0.8])],
+        ],
+      },
+      smile: {
+        name: "Smile",
+        parts: [
+          [Y, ring(0.5, 0.5, 0.4)],
+          [Y, line([0.37, 0.38], [0.37, 0.46])],
+          [Y, line([0.63, 0.38], [0.63, 0.46])],
+          [Y, arc(0.5, 0.52, 0.2, 0.18, deg(20), deg(160), 18)],
+        ],
+      },
+      house: {
+        name: "Home",
+        parts: [
+          [CYAN, line([0.12, 0.52], [0.5, 0.14], [0.88, 0.52])],
+          [CYAN, line([0.22, 0.44], [0.22, 0.9], [0.78, 0.9], [0.78, 0.44])],
+          [ORANGE, line([0.43, 0.9], [0.43, 0.66], [0.57, 0.66], [0.57, 0.9])],
+          [Y, line([0.62, 0.56], [0.72, 0.56], [0.72, 0.66], [0.62, 0.66], [0.62, 0.56])],
+        ],
+      },
+      cake: {
+        name: "Cake",
+        parts: [
+          [PINK, line([0.18, 0.56], [0.18, 0.9], [0.82, 0.9], [0.82, 0.56], [0.18, 0.56])],
+          [WHITE, P(Array.from({ length: 25 }, (_, i) => [0.18 + (0.64 * i) / 24, 0.68 + 0.03 * Math.sin((i / 24) * TAU * 3)]))],
+          [CYAN, line([0.5, 0.56], [0.5, 0.36])],
+          [ORANGE, [...arc(0.5, 0.29, 0.04, 0.06, deg(0), deg(180), 10), [0.5, 0.18], [0.54, 0.29]]],
+        ],
+      },
+      gift: {
+        name: "Gift",
+        parts: [
+          [MINT, line([0.2, 0.44], [0.2, 0.9], [0.8, 0.9], [0.8, 0.44])],
+          [MINT, line([0.14, 0.32], [0.86, 0.32], [0.86, 0.44], [0.14, 0.44], [0.14, 0.32])],
+          [PINK, line([0.5, 0.32], [0.5, 0.9])],
+          [PINK, ring(0.41, 0.23, 0.09, 0.07, 18)],
+          [PINK, ring(0.59, 0.23, 0.09, 0.07, 18)],
+        ],
+      },
+      coffee: {
+        name: "Coffee",
+        parts: [
+          [ORANGE, line([0.22, 0.42], [0.28, 0.88], [0.64, 0.88], [0.7, 0.42], [0.22, 0.42])],
+          [ORANGE, arc(0.71, 0.6, 0.11, 0.11, deg(-80), deg(80), 14)],
+          [WHITE, wave(0.38, 0.34, 0.1, 0.03, 14)],
+          [WHITE, wave(0.54, 0.34, 0.1, 0.03, 14)],
+        ],
+      },
+      rain: {
+        name: "Rain",
+        parts: [
+          [WHITE, [...arc(0.3, 0.46, 0.1, 0.1, deg(90), deg(270), 12), ...arc(0.46, 0.36, 0.15, 0.15, deg(190), deg(340), 14), ...arc(0.67, 0.42, 0.12, 0.12, deg(220), deg(360), 12), ...arc(0.76, 0.47, 0.09, 0.09, deg(-90), deg(90), 10), [0.3, 0.56]]],
+          [CYAN, line([0.36, 0.66], [0.32, 0.78])],
+          [CYAN, line([0.52, 0.66], [0.48, 0.82])],
+          [CYAN, line([0.68, 0.66], [0.64, 0.78])],
+        ],
+      },
+      music: {
+        name: "Music",
+        parts: [
+          [LILAC, ring(0.35, 0.76, 0.1, 0.07, 18)],
+          [LILAC, ring(0.69, 0.69, 0.1, 0.07, 18)],
+          [LILAC, line([0.45, 0.75], [0.45, 0.2], [0.79, 0.14], [0.79, 0.68])],
+          [LILAC, line([0.45, 0.32], [0.79, 0.26])],
+        ],
+      },
+      balloon: {
+        name: "Balloon",
+        parts: [
+          [PINK, ring(0.5, 0.36, 0.22, 0.28)],
+          [PINK, line([0.46, 0.7], [0.5, 0.64], [0.54, 0.7], [0.46, 0.7])],
+          [WHITE, wave(0.5, 0.7, 0.98, 0.04, 16)],
+        ],
+      },
+      pumpkin: {
+        name: "Pumpkin",
+        parts: [
+          [ORANGE, ring(0.5, 0.6, 0.36, 0.27)],
+          [ORANGE, ring(0.5, 0.6, 0.14, 0.27, 24)],
+          [GREEN, quad([0.5, 0.34], [0.49, 0.22], [0.58, 0.16], 8)],
+        ],
+      },
+      paw: {
+        name: "Paw",
+        parts: [
+          [ORANGE, ring(0.5, 0.66, 0.18, 0.15)],
+          [ORANGE, ring(0.28, 0.42, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.42, 0.28, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.58, 0.28, 0.07, 0.08, 16)],
+          [ORANGE, ring(0.72, 0.42, 0.07, 0.08, 16)],
+        ],
+      },
+      pizza: {
+        name: "Pizza",
+        parts: [
+          [Y, line([0.18, 0.2], [0.82, 0.2], [0.5, 0.9], [0.18, 0.2])],
+          [ORANGE, line([0.16, 0.14], [0.84, 0.14])],
+          [PINK, ring(0.41, 0.33, 0.05, 0.05, 12)],
+          [PINK, ring(0.59, 0.35, 0.05, 0.05, 12)],
+          [PINK, ring(0.5, 0.55, 0.05, 0.05, 12)],
+        ],
+      },
+      check: { name: "Done", parts: [[MINT, line([0.18, 0.55], [0.4, 0.78], [0.84, 0.24])]] },
+    };
+  })();
+
+  // Background themes: base colour plus three glow colours. Aurora is the default.
+  const BACKGROUNDS = {
+    aurora: { name: "Aurora", base: "#070b1c", colors: ["#5b6cff", "#ff5fa2", "#22d3c5"] },
+    black: { name: "Black", base: "#000000", colors: ["#2c2c30", "#1f1f24", "#3a3a40"] },
+    sunset: { name: "Sunset", base: "#1a0a10", colors: ["#ff7a45", "#ff3d77", "#ffc15e"] },
+    ocean: { name: "Ocean", base: "#021321", colors: ["#1e88e5", "#00bcd4", "#5c6bc0"] },
+    forest: { name: "Forest", base: "#06130c", colors: ["#43a047", "#9ccc65", "#00897b"] },
+    lavender: { name: "Lavender", base: "#110c1d", colors: ["#9575cd", "#f48fb1", "#7986cb"] },
+    ember: { name: "Ember", base: "#150806", colors: ["#ff5722", "#ffa000", "#d81b60"] },
+    graphite: { name: "Graphite", base: "#0b0d10", colors: ["#78909c", "#b0bec5", "#455a64"] },
+    midnight: { name: "Midnight", base: "#04050b", colors: ["#283593", "#1565c0", "#4a148c"] },
+    halloween: { name: "Halloween", base: "#0c0610", colors: ["#ff6d00", "#8e24aa", "#43a047"] },
+    festive: { name: "Festive", base: "#0a1210", colors: ["#e53935", "#43a047", "#fdd835"] },
+  };
+  const DEFAULT_BACKGROUND = "aurora";
+  const darkBase = (hex) => {
+    const n = parseInt(String(hex).slice(1), 16);
+    if (Number.isNaN(n)) return BACKGROUNDS.aurora.base;
+    const mix = (c) => Math.round(c * 0.1 + 6);
+    const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(mix);
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+  };
   const LAST_SENDER_KEY = "glass-message-board:last-sender";
   const storage = {
     get(k) {
@@ -69,6 +260,8 @@
     reply: '<svg viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg>',
     plus: '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
     people: '<svg viewBox="0 0 24 24"><path d="M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1a4.2 4.2 0 0 1 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>',
+    palette: '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18 1.5 1.5 0 0 0 1.1-2.5 1.5 1.5 0 0 1 1.1-2.5H16a5 5 0 0 0 5-5c0-4.4-4-8-9-8zm-5.5 9A1.5 1.5 0 1 1 8 10.5 1.5 1.5 0 0 1 6.5 12zm3-4A1.5 1.5 0 1 1 11 6.5 1.5 1.5 0 0 1 9.5 8zm5 0A1.5 1.5 0 1 1 16 6.5 1.5 1.5 0 0 1 14.5 8zm3 4a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>',
     edit: '<svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.8l11-11.1-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>',
     chevron: '<svg viewBox="0 0 24 24"><path d="M8.6 16.6 13.2 12 8.6 7.4 10 6l6 6-6 6z"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>',
@@ -81,14 +274,14 @@
   button { font:inherit; color:inherit; cursor:pointer; border:0; background:none; -webkit-tap-highlight-color:transparent; }
   svg { width:1em; height:1em; fill:currentColor; flex:none; }
   .root { position:relative; overflow:hidden; border-radius: var(--ha-card-border-radius, 18px);
-    color: var(--gm-text); background:#070b1c; min-height: var(--gm-height); height: var(--gm-height); isolation:isolate; }
+    color: var(--gm-text); background: var(--gm-base, #070b1c); transition: background-color 1s ease; min-height: var(--gm-height); height: var(--gm-height); isolation:isolate; }
 
   /* aurora */
   .aurora { position:absolute; inset:-20%; z-index:-1; filter: blur(70px) saturate(140%); }
   .aurora i { position:absolute; border-radius:50%; opacity:.75; mix-blend-mode:screen; animation: drift 28s ease-in-out infinite alternate; }
-  .aurora .b1 { width:60%; height:60%; left:5%; top:5%; background: radial-gradient(circle, #5b6cff 0%, transparent 65%); }
-  .aurora .b2 { width:55%; height:65%; right:0; top:20%; background: radial-gradient(circle, #ff5fa2 0%, transparent 65%); animation-duration: 34s; animation-delay:-8s; }
-  .aurora .b3 { width:70%; height:55%; left:20%; bottom:-5%; background: radial-gradient(circle, #22d3c5 0%, transparent 65%); animation-duration: 40s; animation-delay:-16s; }
+  .aurora .b1 { width:60%; height:60%; left:5%; top:5%; background: radial-gradient(circle, var(--gm-c1, #5b6cff) 0%, transparent 65%); }
+  .aurora .b2 { width:55%; height:65%; right:0; top:20%; background: radial-gradient(circle, var(--gm-c2, #ff5fa2) 0%, transparent 65%); animation-duration: 34s; animation-delay:-8s; }
+  .aurora .b3 { width:70%; height:55%; left:20%; bottom:-5%; background: radial-gradient(circle, var(--gm-c3, #22d3c5) 0%, transparent 65%); animation-duration: 40s; animation-delay:-16s; }
   .bgimg { position:absolute; inset:0; z-index:-1; background-size:cover; background-position:center; opacity:.85; }
   .grain { position:absolute; inset:0; z-index:-1; opacity:.06; pointer-events:none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
@@ -149,6 +342,13 @@
   .text.lg { font-size: 22px; line-height:1.3; }
   .text.xl { font-size: clamp(26px, 2.6vw, 34px); line-height:1.15; font-weight:500; letter-spacing:-.01em; }
   .drawing { display:block; width:100%; height:auto; margin-top:12px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+  .sticker-shelf { margin-top: 12px; }
+  .sticker-shelf .label { margin: 0 0 8px; }
+  .sticker-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .sticker { width:58px; height:58px; padding:7px; border-radius:16px; background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); transition: transform .15s, background .2s; }
+  .sticker:hover { background: rgba(255,255,255,.16); }
+  .sticker:active { transform: scale(.9); }
+  .sticker .drawing { margin:0; }
   .drawing path { fill:none; stroke-linecap:round; stroke-linejoin:round; }
   footer { display:flex; align-items:center; gap:6px; margin-top:12px; flex-wrap:wrap; min-height: 6px; }
   .rx { display:inline-flex; align-items:center; gap:4px; padding: 3px 9px; border-radius:999px; background: rgba(255,255,255,.12); font-size:14px; }
@@ -200,7 +400,8 @@
   .tint-dot.on { border-color:#fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
   .sheet-foot { display:flex; align-items:center; gap:12px; margin-top: 18px; }
   .compose-scrim .sheet-foot { position: sticky; bottom: -24px; margin: 12px -26px -24px; padding: 14px 26px 20px;
-    background: linear-gradient(to top, rgba(14,18,44,.92) 55%, rgba(14,18,44,0)); border-radius: 0 0 var(--gm-radius) var(--gm-radius); }
+    background: linear-gradient(to top, rgba(14,18,44,.92) 55%, rgba(14,18,44,0));
+    background: linear-gradient(to top, color-mix(in srgb, var(--gm-base, #070b1c) 88%, transparent) 55%, transparent); border-radius: 0 0 var(--gm-radius) var(--gm-radius); }
   .err { color: #ffb3c4; font-size:14px; flex:1; }
   .primary { display:inline-flex; align-items:center; gap:10px; padding: 14px 28px; border-radius:999px; font-weight:600; font-size:16px;
     background: linear-gradient(135deg, #fff, #dfe5ff); color:#121735; box-shadow: 0 10px 30px -8px rgba(120,140,255,.8); }
@@ -295,6 +496,27 @@
   .sec-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .sec-head h3 { margin:0; }
 
+  /* background picker */
+  .icon-only { width:44px; height:44px; padding:0; justify-content:center; }
+  .bg-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap:12px; }
+  .bg-opt { display:flex; flex-direction:column; gap:8px; padding:8px 8px 10px; border-radius:20px; text-align:left; font-size:14px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); transition: border-color .2s, background .2s; }
+  .bg-opt.on { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.7); }
+  .bg-opt .bg-name { display:flex; align-items:center; justify-content:space-between; gap:6px; padding: 0 4px; }
+  .bg-opt .bg-name small { color: var(--gm-dim); font-size: 11px; }
+  .bg-opt svg { font-size:18px; }
+  .bg-prev { position:relative; height:72px; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.12);
+    background: radial-gradient(circle at 22% 30%, var(--p1) 0, transparent 58%), radial-gradient(circle at 82% 40%, var(--p2) 0, transparent 58%),
+      radial-gradient(circle at 50% 100%, var(--p3) 0, transparent 62%), var(--pb); }
+  .bg-prev i { position:absolute; left:12px; right:30px; top:18px; height:12px; border-radius:6px; background: rgba(255,255,255,.28); }
+  .bg-prev i + i { top:38px; right:52px; background: rgba(255,255,255,.18); }
+  .custom-row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .color-field { display:flex; flex-direction:column; gap:6px; font-size:13px; color: var(--gm-dim); }
+  .color-field input { width:64px; height:48px; padding:3px; border-radius:14px; border:1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.2); cursor:pointer; }
+  .color-field input::-webkit-color-swatch-wrapper { padding:0; }
+  .color-field input::-webkit-color-swatch { border:none; border-radius:10px; }
+  .color-field input::-moz-color-swatch { border:none; border-radius:10px; }
+
   @media (max-width: 600px) { .title { display:none; } header { padding: 12px 14px; } .row > label { width:100%; } .new span, .people-btn span { display:none; }
     .sheet { padding: 18px 18px 20px; } .compose-scrim .sheet-foot { margin: 12px -18px -20px; padding: 12px 18px 16px; bottom: -20px; }
     .avatar.xl { width:48px; height:48px; font-size:24px; } .pform-top { gap:10px; } .card-inset { padding: 14px; } }
@@ -313,8 +535,9 @@
       this._spotIndex = 0;
       this._compose = null;
       this._members = [];
-      this._settings = { include_ha_people: true };
+      this._settings = { include_ha_people: true, background: { preset: DEFAULT_BACKGROUND, colors: [] } };
       this._peopleUi = null;
+      this._lookUi = null;
     }
 
     static getStubConfig() {
@@ -438,6 +661,8 @@
       this._renderBoard();
       if (this._ambient) this._renderSpot(true);
       if (ev.action === "snapshot" || ev.action === "people") {
+        this._applyBackground();
+        if (this._lookUi) this._renderLook();
         if (this._compose) this._syncCompose();
         if (this._peopleUi) this._renderPeople();
       }
@@ -524,6 +749,7 @@
               <div class="clock"><div class="time"></div><div class="date"></div></div>
               <div class="title"></div>
               <nav class="filters"></nav>
+              <button class="ghost-btn icon-only" data-action="look" aria-label="Background colours" title="Background colours">${ICON.palette}</button>
               <button class="ghost-btn people-btn" data-action="people" aria-label="People">${ICON.people}<span>People</span></button>
               <button class="new" data-action="compose">${ICON.plus}<span>Leave a note</span></button>
             </header>
@@ -537,6 +763,7 @@
           <div class="scrim compose-scrim" hidden></div>
           <div class="scrim detail-scrim" hidden></div>
           <div class="scrim people-scrim" hidden></div>
+          <div class="scrim look-scrim" hidden></div>
         </div>`;
       const root = this.shadowRoot.querySelector(".root");
       root.addEventListener("click", (e) => this._onClick(e));
@@ -724,6 +951,9 @@
         case "people":
           this._openPeople();
           break;
+        case "look":
+          this._openLook();
+          break;
         case "open":
           this._openDetail(id);
           break;
@@ -754,6 +984,7 @@
         }
         default:
           if (a.startsWith("p-")) this._onPeopleClick(el, a);
+          else if (a.startsWith("l-")) this._onLookClick(el, a);
           else if (this._compose) this._onComposeClick(el, a);
       }
     }
@@ -855,6 +1086,8 @@
         ink: INK[0],
         width: WIDTHS[1],
         strokes: [],
+        groups: [],
+        stickersPlaced: 0,
         sending: false,
       };
       const scrim = this.shadowRoot.querySelector(".compose-scrim");
@@ -881,7 +1114,7 @@
               </div>
             </div>
             <div class="pane-draw" hidden>
-              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger ✨</div></div>
+              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger, or tap a sticker below ✨</div></div>
               <div class="tools">
                 ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="Ink ${c}"></button>`).join("")}
                 <span style="width:10px"></span>
@@ -889,6 +1122,12 @@
                 <span style="flex:1"></span>
                 <button class="icon-btn" data-action="c-undo" aria-label="Undo">${ICON.undo}</button>
                 <button class="icon-btn" data-action="c-clear" aria-label="Clear drawing">${ICON.trash}</button>
+              </div>
+              <div class="sticker-shelf">
+                <div class="label">Stickers</div>
+                <div class="sticker-row">${Object.entries(STICKERS)
+                  .map(([k, st]) => `<button class="sticker" data-action="c-sticker" data-sticker="${k}" aria-label="Add ${esc(st.name)} sticker" title="${esc(st.name)}">${this._drawingSVG({ ar: 1, strokes: st.parts.map(([c, pts]) => ({ c, w: 0.05, p: pts })) })}</button>`)
+                  .join("")}</div>
               </div>
             </div>
           </section>
@@ -1070,13 +1309,21 @@
         case "c-width":
           c.width = Number(el.dataset.w);
           break;
-        case "c-undo":
-          c.strokes.pop();
+        case "c-undo": {
+          const n = c.groups.pop() || 1;
+          c.strokes.splice(-n, n);
+          if (!c.strokes.length) c.stickersPlaced = 0;
           this._redrawPad();
           break;
+        }
         case "c-clear":
           c.strokes = [];
+          c.groups = [];
+          c.stickersPlaced = 0;
           this._redrawPad();
+          break;
+        case "c-sticker":
+          this._placeSticker(el.dataset.sticker);
           break;
         case "c-emoji": {
           const pos = ta.selectionStart ?? ta.value.length;
@@ -1092,6 +1339,120 @@
           return this._send();
       }
       this._syncCompose();
+    }
+
+    // ----------------------------------------------------------- background
+    _resolveBackground(choice) {
+      const bg = choice || (this._settings && this._settings.background) || {};
+      if (bg.preset === "custom" && Array.isArray(bg.colors) && bg.colors.length === 3) {
+        return { base: darkBase(bg.colors[0]), colors: bg.colors };
+      }
+      return BACKGROUNDS[bg.preset] || BACKGROUNDS[DEFAULT_BACKGROUND];
+    }
+
+    _applyBackground(choice) {
+      if (!this._built) return;
+      const t = this._resolveBackground(choice);
+      const root = this.shadowRoot.querySelector(".root");
+      root.style.setProperty("--gm-base", t.base);
+      t.colors.forEach((c, i) => root.style.setProperty(`--gm-c${i + 1}`, c));
+    }
+
+    _openLook() {
+      const bg = (this._settings && this._settings.background) || { preset: DEFAULT_BACKGROUND, colors: [] };
+      const start = bg.preset === "custom" && bg.colors && bg.colors.length === 3 ? bg.colors : this._resolveBackground().colors;
+      this._lookUi = { custom: [...start], error: "" };
+      const scrim = this.shadowRoot.querySelector(".look-scrim");
+      scrim.hidden = false;
+      scrim.onclick = (e) => {
+        if (e.target === scrim) this._closeLook();
+      };
+      scrim.oninput = (e) => {
+        const i = e.target.dataset && e.target.dataset.ci;
+        if (i === undefined || !this._lookUi) return;
+        this._lookUi.custom[Number(i)] = e.target.value;
+        this._applyBackground({ preset: "custom", colors: this._lookUi.custom });
+        const prev = scrim.querySelector(".custom-prev");
+        if (prev) prev.setAttribute("style", this._prevStyle(this._resolveBackground({ preset: "custom", colors: this._lookUi.custom })));
+      };
+      this._renderLook();
+    }
+
+    _closeLook() {
+      this._lookUi = null;
+      const s = this.shadowRoot.querySelector(".look-scrim");
+      s.hidden = true;
+      s.innerHTML = "";
+      this._applyBackground();
+      this._resetIdle();
+    }
+
+    _prevStyle(t) {
+      return `--pb:${t.base};--p1:${t.colors[0]};--p2:${t.colors[1]};--p3:${t.colors[2]}`;
+    }
+
+    _renderLook() {
+      const ui = this._lookUi;
+      const scrim = this.shadowRoot.querySelector(".look-scrim");
+      if (!ui || !scrim) return;
+      const current = ((this._settings && this._settings.background) || {}).preset || DEFAULT_BACKGROUND;
+      const scrollTop = scrim.querySelector(".sheet") ? scrim.querySelector(".sheet").scrollTop : 0;
+      const option = (key, t) => `
+        <button class="bg-opt ${current === key ? "on" : ""}" data-action="l-preset" data-preset="${key}" aria-pressed="${current === key}">
+          <span class="bg-prev" style="${this._prevStyle(t)}"><i></i><i></i></span>
+          <span class="bg-name"><span>${esc(t.name)}${key === DEFAULT_BACKGROUND ? " <small>Default</small>" : ""}</span>${current === key ? ICON.check : ""}</span>
+        </button>`;
+      scrim.innerHTML = `
+        <div class="sheet glass">
+          <div class="sheet-head"><h2>Background</h2><button class="icon-btn" data-action="l-close" aria-label="Close">${ICON.close}</button></div>
+          <p class="lead">Pick a colour theme for the board. It changes on every screen showing this board.</p>
+          <div class="bg-grid">${Object.entries(BACKGROUNDS).map(([k, t]) => option(k, t)).join("")}</div>
+          <section class="people-sec card-inset">
+            <h3>Your own colours</h3>
+            <div class="custom-row">
+              ${ui.custom
+                .map((c, i) => `<label class="color-field">Colour ${i + 1}<input id="gm-l-c${i}" type="color" value="${esc(c)}" data-ci="${i}"></label>`)
+                .join("")}
+              <span class="bg-prev custom-prev" style="${this._prevStyle(this._resolveBackground({ preset: "custom", colors: ui.custom }))};flex:1;min-width:120px;height:48px"><i></i></span>
+            </div>
+            <p class="muted">Changing a colour previews it right away. Select <b>Use my colours</b> to keep it.</p>
+            <div class="pform-foot">
+              <span class="err">${esc(ui.error)}</span>
+              ${current === "custom" ? `<span class="muted">${ICON.check} In use</span>` : ""}
+              <button class="primary" data-action="l-custom">Use my colours</button>
+            </div>
+          </section>
+        </div>`;
+      const sheet = scrim.querySelector(".sheet");
+      if (sheet) sheet.scrollTop = scrollTop;
+    }
+
+    async _saveBackground(background) {
+      const prev = this._settings.background;
+      this._settings = { ...this._settings, background };
+      this._applyBackground();
+      try {
+        await this._hass.callWS({ type: "glass_messages/settings", background });
+      } catch (err) {
+        this._settings = { ...this._settings, background: prev };
+        this._applyBackground();
+        if (this._lookUi) this._lookUi.error = (err && err.message) || String(err);
+      }
+      this._renderLook();
+    }
+
+    _onLookClick(el, a) {
+      if (!this._lookUi) return;
+      switch (a) {
+        case "l-close":
+          return this._closeLook();
+        case "l-preset":
+          this._lookUi.error = "";
+          return this._saveBackground({ preset: el.dataset.preset, colors: [] });
+        case "l-custom":
+          this._lookUi.error = "";
+          return this._saveBackground({ preset: "custom", colors: [...this._lookUi.custom] });
+      }
     }
 
     // --------------------------------------------------------------- people
@@ -1327,6 +1688,7 @@
         canvas.setPointerCapture(e.pointerId);
         const stroke = { c: this._compose.ink, w: this._compose.width, p: [point(e).map((v) => +v.toFixed(4))] };
         this._compose.strokes.push(stroke);
+        this._compose.groups.push(1);
         this._pad.active = stroke;
         this._redrawPad();
         this._syncCompose();
@@ -1345,6 +1707,28 @@
       const end = () => (this._pad.active = null);
       canvas.addEventListener("pointerup", end);
       canvas.addEventListener("pointercancel", end);
+    }
+
+    _placeSticker(key) {
+      const c = this._compose;
+      const st = STICKERS[key];
+      if (!c || !st) return;
+      const ar = this._padAspect || 16 / 9;
+      const size = 0.4; // fraction of pad height
+      const w = size / ar;
+      const cols = Math.max(1, Math.floor(0.92 / (w * 1.15)));
+      const slot = c.stickersPlaced % (cols * 2);
+      const col = slot % cols;
+      const row = Math.floor(slot / cols);
+      const gap = (1 - cols * w) / (cols + 1);
+      const x0 = gap + col * (w + gap);
+      const y0 = row ? 0.54 : 0.06;
+      const r4 = (v) => Math.round(Math.min(1, Math.max(0, v)) * 10000) / 10000;
+      const added = st.parts.map(([color, pts]) => ({ c: color, w: 0.011, p: pts.map(([x, y]) => [r4(x0 + x * w), r4(y0 + y * size)]) }));
+      c.strokes.push(...added);
+      c.groups.push(added.length);
+      c.stickersPlaced++;
+      this._redrawPad();
     }
 
     _resizePad() {
@@ -1495,7 +1879,7 @@
     name: "Glass Message Board",
     description: "A frosted-glass household message board with handwriting, dictation and reactions.",
     preview: false,
-    documentationURL: "https://github.com/your-name/glass-message-board",
+    documentationURL: "https://github.com/Degederon/GlassMessageBoard",
   });
   console.info(`%c GLASS MESSAGE BOARD %c ${VERSION} `, "background:#5b6cff;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#ff5fa2;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
 })();
