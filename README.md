@@ -108,7 +108,7 @@ This makes sure your browser can draw the board. Skipping it is the most common 
 1. If you don't see **Resources** in the next step, turn on **Advanced mode** first: select your **profile picture** (bottom left) and switch on **Advanced mode**.
 2. Go to **Settings → Dashboards**, select **⋮** (top right), then **Resources**.
 3. Select **+ Add resource** and enter:
-   - **URL:** `/glass_messages/glass-message-board.js`
+   - **URL:** `/glass_messages/glass-message-board.js?v=1.2.1` (the number at the end is the version you installed)
    - **Resource type:** **JavaScript module**
 4. Select **Create**.
 5. Refresh the page:
@@ -409,7 +409,7 @@ Your browser hasn't loaded the board's display file. Work through these steps in
 | Dictation reports **Microphone blocked** | Open Home Assistant over HTTPS and allow microphone access in the browser. |
 | No push notifications | Open **People**, edit the person and check that a phone is selected. For Home Assistant `person` entities, check **Settings → Devices & services → Glass Message Board → Configure**. |
 | A phone is missing from the list | Install the Home Assistant app on that phone and sign in, then reopen the People screen. |
-| The board still looks like the old version after an update | Hard-refresh the browser, or reset the companion app's frontend cache. |
+| The board still looks like the old version after an update | Go to **Settings → Dashboards → ⋮ → Resources**, select the Glass Message Board entry and change the number at the end of the URL to the new version (for example `?v=1.2.1`). Then hard-refresh the browser, or reset the companion app's frontend cache. |
 
 ## Contributing
 
