@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/badge/version-1.2.1-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![Glass Message Board on a wall tablet](docs/images/board.png)
+![Glass Message Board on a wall tablet](https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/board.png)
 
 </div>
 
@@ -47,8 +47,8 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
 
 <p align="center">
-  <img src="docs/images/compose.png" alt="The three-step note form" width="49%">
-  <img src="docs/images/people.png" alt="The People screen" width="49%">
+  <img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/compose.png" alt="The three-step note form" width="49%">
+  <img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/people.png" alt="The People screen" width="49%">
 </p>
 
 ### Architecture
@@ -173,7 +173,7 @@ To change someone later, open **People** and select **Edit** or **Remove** (sele
    - **Draw**: open the **Draw** tab and draw with your finger. Choose ink colours and pen sizes; **undo** removes the last line.
    - **Stickers**: on the **Draw** tab, scroll below the ink colours to the **Stickers** row and tap any sticker to add it to the note. There are 17, including a heart, sun, star, cake, gift and balloon. Add several, draw around them, and use **undo** to remove the last one.
 
-     <p align="center"><img src="docs/images/stickers.png" alt="The sticker shelf on the Draw tab" width="70%"></p>
+     <p align="center"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/stickers.png" alt="The sticker shelf on the Draw tab" width="70%"></p>
 
 5. Optional: select **More options** to choose a note colour, how long it stays (1 hour to Keep), or **Pin** it so it never expires.
 6. Select **Send to [name]**.
@@ -197,7 +197,7 @@ If someone isn't on the board yet, select **Add name** in step 2 or 3 and type t
 3. To use your own colours, change **Colour 1**, **Colour 2** and **Colour 3** under **Your own colours**. The board previews each change. Select **Use my colours** to keep them.
 4. Close the window with **X**.
 
-<p align="center"><img src="docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
 
 Available presets: Aurora, Black, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
 
