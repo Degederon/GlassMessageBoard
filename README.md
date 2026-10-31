@@ -6,7 +6,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.2.2-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.3-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -18,6 +18,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 ## Contents
 
 - [Features](#features)
+- [Take a tour](#take-a-tour)
 - [Requirements](#requirements)
 - [Step-by-step setup](#step-by-step-setup)
 - [Dashboard configuration](#dashboard-configuration)
@@ -50,6 +51,49 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
   <img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/compose.png" alt="The three-step note form" width="49%">
   <img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/people.png" alt="The People screen" width="49%">
 </p>
+
+## Take a tour
+
+All pictures are from the board itself, with example notes.
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/01-board-aurora.jpg" alt="The board on a wall tablet, with notes from the whole household." width="100%"><br><sub>The board on a wall tablet, with notes from the whole household.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/16-welcome.jpg" alt="A fresh install opens on a welcome screen that guides you to add people." width="100%"><br><sub>A fresh install opens on a welcome screen that guides you to add people.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/05-write-note.jpg" alt="Leave a note in three steps: who's writing, who it's for, and the message." width="100%"><br><sub>Leave a note in three steps: who's writing, who it's for, and the message.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/04-reply.jpg" alt="Reply to a note and it's already addressed to the sender." width="100%"><br><sub>Reply to a note and it's already addressed to the sender.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/07-draw-stickers.jpg" alt="Draw with your finger and tap stickers from the shelf." width="100%"><br><sub>Draw with your finger and tap stickers from the shelf.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/08-sticker-note.jpg" alt="The finished sticker note on the board." width="100%"><br><sub>The finished sticker note on the board.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/06-more-options.jpg" alt="More options: note colour, how long it stays, or pin it." width="100%"><br><sub>More options: note colour, how long it stays, or pin it.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/03-note-reactions.jpg" alt="Open a note to react, reply, pin or delete it." width="100%"><br><sub>Open a note to react, reply, pin or delete it.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/02-filter-for-me.jpg" alt="Tap For me to see only the notes meant for you." width="100%"><br><sub>Tap For me to see only the notes meant for you.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/09-edit-person.jpg" alt="Manage people with an emoji picture, a colour and their phone." width="100%"><br><sub>Manage people with an emoji picture, a colour and their phone.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/10-custom-colours.jpg" alt="Mix your own background from any three colours." width="100%"><br><sub>Mix your own background from any three colours.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/11-theme-black.jpg" alt="The Black theme." width="100%"><br><sub>The Black theme.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/12-theme-sunset.jpg" alt="The Sunset theme." width="100%"><br><sub>The Sunset theme.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/13-theme-ocean.jpg" alt="The Ocean theme." width="100%"><br><sub>The Ocean theme.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/14-theme-halloween.jpg" alt="The Halloween theme, one of the seasonal presets." width="100%"><br><sub>The Halloween theme, one of the seasonal presets.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/15-ambient.jpg" alt="Ambient mode: a large clock and a rotating spotlight of notes when nobody is using the tablet." width="100%"><br><sub>Ambient mode: a large clock and a rotating spotlight of notes when nobody is using the tablet.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/17-phone-board.jpg" alt="The board on a phone." width="100%"><br><sub>The board on a phone.</sub></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/tour/18-phone-write.jpg" alt="Writing a note on a phone." width="100%"><br><sub>Writing a note on a phone.</sub></td>
+</tr>
+</table>
 
 ### Architecture
 

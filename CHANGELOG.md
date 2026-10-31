@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.3] - 2026-10-31
+
+### Fixed
+
+- The People, Background and note windows no longer flicker when you tap inside them (for example picking an emoji, a colour or a reaction). They now animate only when they first open.
+
+### Added
+
+- A **Take a tour** section in the README with 18 pictures of the board: themes, writing, drawing and stickers, reactions, filters, ambient mode and phone layouts.
+
 ## [1.2.2] - 2026-10-31
 
 ### Added
