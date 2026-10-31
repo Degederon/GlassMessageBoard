@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Glass Message Board",
+        "description": "Adds a household message board. The glass card is loaded automatically — add it to a dashboard as \"Glass Message Board\"."
+      }
+    },
+    "abort": {
+      "already_configured": "The message board is already set up.",
+      "single_instance_allowed": "The message board is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Notifications & defaults",
+        "description": "For each person, pick the notify service(s) that should ping them when a note is left for them (for example notify.mobile_app_pixel). Notes to \"Everyone\" ping every person below except the sender.",
+        "data": {
+          "notify_everyone": "Extra services for notes to everyone",
+          "notify_url": "Open this dashboard path when a notification is tapped (e.g. /lovelace/notes)",
+          "default_expiry_hours": "Default note lifetime (0 = keep)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+post:
+  name: Leave a note
+  description: Post a message to the glass board.
+  fields:
+    message:
+      name: Message
+      required: true
+      example: "Dinner's in the oven 🍝"
+      selector:
+        text:
+          multiline: true
+    to:
+      name: To
+      description: A person entity, or "everyone".
+      default: everyone
+      example: person.jay
+      selector:
+        text:
+    from:
+      name: From
+      description: Person entity of the sender. Defaults to the user running the action.
+      selector:
+        entity:
+          domain: person
+    sender_name:
+      name: Sender name
+      description: Name to show when not sent by a person (e.g. "Home" or "Washer").
+      example: Laundry
+      selector:
+        text:
+    expires_in:
+      name: Expires in
+      description: Minutes until the note disappears.
+      selector:
+        number:
+          min: 1
+          max: 43200
+          unit_of_measurement: min
+          mode: box
+    expires_at:
+      name: Expires at
+      selector:
+        datetime:
+    pinned:
+      name: Pinned
+      default: false
+      selector:
+        boolean:
+    tint:
+      name: Tint
+      default: clear
+      selector:
+        select:
+          options: [clear, rose, amber, mint, sky, violet]
+    notify:
+      name: Send notifications
+      default: true
+      selector:
+        boolean:
+
+delete:
+  name: Delete a note
+  fields:
+    id:
+      name: Message ID
+      required: true
+      selector:
+        text:
+
+pin:
+  name: Pin or unpin a note
+  fields:
+    id:
+      name: Message ID
+      required: true
+      selector:
+        text:
+    pinned:
+      name: Pinned
+      default: true
+      selector:
+        boolean:
+
+react:
+  name: React to a note
+  fields:
+    id:
+      name: Message ID
+      required: true
+      selector:
+        text:
+    emoji:
+      name: Emoji
+      required: true
+      example: "❤️"
+      selector:
+        text:
+    from:
+      name: From
+      selector:
+        entity:
+          domain: person
+
+clear:
+  name: Clear the board
+  description: Remove all notes (pinned notes are kept unless included).
+  fields:
+    include_pinned:
+      name: Include pinned
+      default: false
+      selector:
+        boolean:
