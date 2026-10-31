@@ -392,9 +392,9 @@ Custom frontends can use the following commands:
 Your browser hasn't loaded the board's display file. Work through these steps in order and check the dashboard after each one.
 
 1. Go to **Settings → Devices & services** and check that **Glass Message Board** is listed. If it isn't, complete [Part 2](#part-2-turn-on-the-integration).
-2. Restart Home Assistant, then hard-refresh the page (**Ctrl + Shift + R**, or **Reset frontend cache** in the companion app).
-3. Complete [Part 3](#part-3-load-the-boards-display-file) to add the resource, then refresh again.
-4. Open your Home Assistant address followed by `/glass_messages/glass-message-board.js`.
+2. Go to **Settings → Dashboards → ⋮ → Resources** and check that `/glass_messages/glass-message-board.js` is listed as a **JavaScript module**. If it isn't, complete [Part 3](#part-3-load-the-boards-display-file). This fixes most red boxes.
+3. Restart Home Assistant, then hard-refresh the page (**Ctrl + Shift + R**, or **Reset frontend cache** in the companion app).
+4. Open your Home Assistant address followed by `/glass_messages/glass-message-board.js`, for example `http://homeassistant.local:8123/glass_messages/glass-message-board.js`.
    - If you see a page of code, the file is fine: clear the browser cache and try again.
    - If you see **404: Not Found**, go to **Settings → System → Logs**, search for `glass`, and include what you find when reporting the problem.
 5. Still red? Edit the dashboard, select the red card, and note the full error text underneath. Include it when reporting the problem.
@@ -406,10 +406,14 @@ Your browser hasn't loaded the board's display file. Work through these steps in
 | The board shows **Almost there** | The integration is downloaded but not added. Complete [Part 2](#part-2-turn-on-the-integration), then refresh the page. |
 | A tile says **Glass Message Board – Up-to-date** | That is the update tracker, not the board. Delete the tile and add the board as described in [Part 4](#part-4-create-the-dashboard). |
 | The board is small or squeezed | Edit the view (pencil next to the tab name) and set **View type** to **Panel**. |
-| The microphone button is missing | The browser doesn't support speech recognition. Chrome, Edge and Safari support it. |
+| The microphone button is missing | The browser or app doesn't support voice dictation. Desktop Chrome, Edge and Safari support it. The Home Assistant app and kiosk apps such as Fully Kiosk Browser often don't, even on Android; type or draw instead, or use the phone's keyboard microphone in the **Write** box. |
 | Dictation reports **Microphone blocked** | Open Home Assistant over HTTPS and allow microphone access in the browser. |
 | No push notifications | Open **People**, edit the person and check that a phone is selected. For Home Assistant `person` entities, check **Settings → Devices & services → Glass Message Board → Configure**. |
 | A phone is missing from the list | Install the Home Assistant app on that phone and sign in, then reopen the People screen. |
+| There's no palette button or Stickers row | You're on a version older than 1.2.1. Update in the Marketplace, then see **The board still looks like the old version after an update** at the bottom of this table. |
+| The Marketplace doesn't offer an update | Open **Glass Message Board** in the Marketplace, open the **⋮** menu and choose **Update information**. Updates appear once a new release is published on GitHub. |
+| A note disappeared | It reached the time chosen under **Stays**. To keep a note, **Pin** it or choose **Keep** when writing it. |
+| There's no **Delete** button on a note | Only the sender, the recipient or a Home Assistant administrator can delete a note. Anyone can pin or react. |
 | The board still looks like the old version after an update | Go to **Settings → Dashboards → ⋮ → Resources**, select the Glass Message Board entry and change the number at the end of the URL to the new version (for example `?v=1.2.1`). Then hard-refresh the browser, or reset the companion app's frontend cache. |
 
 ## Contributing
