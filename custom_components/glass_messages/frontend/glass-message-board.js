@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.2.2";
+  const VERSION = "1.2.3";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
@@ -368,6 +368,7 @@
   @keyframes fade { from { opacity:0; } }
   .sheet { width: min(760px, 100%); max-height: 100%; overflow:auto; padding: 22px 26px 24px; animation: pop .35s cubic-bezier(.2,.9,.25,1.1) both; scrollbar-width:none; }
   @keyframes pop { from { opacity:0; transform: translateY(24px) scale(.97); } }
+  .settled { animation: none !important; }
   .sheet-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 14px; }
   .sheet-head h2 { margin:0; font-weight:500; font-size: 24px; }
   .icon-btn { width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-size:22px; background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); }
@@ -1037,8 +1038,9 @@
       const mine = this._myReactKey();
       const reacted = (e) => ((m.reactions || {})[e] || []).includes(mine);
       const canEdit = this._canModify(m);
+      const settled = scrim.querySelector(".detail") ? " settled" : "";
       scrim.innerHTML = `
-        <div class="detail glass" style="--tint:${TINTS[m.tint] || TINTS.clear}">
+        <div class="detail glass${settled}" style="--tint:${TINTS[m.tint] || TINTS.clear}">
           ${this._noteHTML(m, { bare: true })}
           <div class="reactbar">${REACTIONS.map((e) => `<button class="${reacted(e) ? "mine" : ""}" data-action="react" data-emoji="${e}" aria-label="React ${e}">${e}</button>`).join("")}</div>
           <div class="actions">
@@ -1397,13 +1399,14 @@
       if (!ui || !scrim) return;
       const current = ((this._settings && this._settings.background) || {}).preset || DEFAULT_BACKGROUND;
       const scrollTop = scrim.querySelector(".sheet") ? scrim.querySelector(".sheet").scrollTop : 0;
+      const settled = scrim.querySelector(".sheet") ? " settled" : "";
       const option = (key, t) => `
         <button class="bg-opt ${current === key ? "on" : ""}" data-action="l-preset" data-preset="${key}" aria-pressed="${current === key}">
           <span class="bg-prev" style="${this._prevStyle(t)}"><i></i><i></i></span>
           <span class="bg-name"><span>${esc(t.name)}${key === DEFAULT_BACKGROUND ? " <small>Default</small>" : ""}</span>${current === key ? ICON.check : ""}</span>
         </button>`;
       scrim.innerHTML = `
-        <div class="sheet glass">
+        <div class="sheet glass${settled}">
           <div class="sheet-head"><h2>Background</h2><button class="icon-btn" data-action="l-close" aria-label="Close">${ICON.close}</button></div>
           <p class="lead">Pick a colour theme for the board. It changes on every screen showing this board.</p>
           <div class="bg-grid">${Object.entries(BACKGROUNDS).map(([k, t]) => option(k, t)).join("")}</div>
@@ -1504,8 +1507,9 @@
       const ha = this._haPeople();
       const haOn = !(this._settings && this._settings.include_ha_people === false);
       const scrollTop = scrim.querySelector(".sheet") ? scrim.querySelector(".sheet").scrollTop : 0;
+      const settled = scrim.querySelector(".sheet") ? " settled" : "";
       scrim.innerHTML = `
-        <div class="sheet glass">
+        <div class="sheet glass${settled}">
           <div class="sheet-head"><h2>People</h2><button class="icon-btn" data-action="p-close" aria-label="Close">${ICON.close}</button></div>
           <p class="lead">Add everyone who uses the board. Their names appear when someone leaves a note.</p>
           <section class="card-inset">
