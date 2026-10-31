@@ -17,8 +17,9 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 
 from .board import MessageBoard
-from .const import CARD_URL, DATA_FRONTEND, DOMAIN, SIGNAL_UPDATED, VERSION
+from .const import CARD_URL, DATA_FRONTEND, DOMAIN, SIGNAL_UPDATED
 from .notifier import async_handle_notify
+from .resources import async_ensure_resource, resource_url
 from .services import async_register_services, async_unregister_services
 from .websocket import async_register_websocket
 
@@ -68,10 +69,16 @@ async def _async_reload(hass: HomeAssistant, entry: GlassConfigEntry) -> None:
 
 
 async def _async_register_frontend(hass: HomeAssistant) -> None:
-    """Serve the card and load it on every dashboard — no manual resource needed."""
+    """Serve the card and make sure dashboards load the current version of it.
+
+    The card is added to Settings > Dashboards > Resources (and kept on the
+    current version after updates). If that isn't possible, for example with
+    dashboards in YAML mode, it is injected into every page instead.
+    """
     if hass.data.get(DATA_FRONTEND):
         return
     card = Path(__file__).parent / "frontend" / "glass-message-board.js"
     await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(card), False)])
-    add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
+    if not await async_ensure_resource(hass):
+        add_extra_js_url(hass, resource_url())
     hass.data[DATA_FRONTEND] = True

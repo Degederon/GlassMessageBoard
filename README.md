@@ -6,7 +6,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.2.1-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.2-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![Glass Message Board on a wall tablet](https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/board.png)
@@ -103,17 +103,24 @@ To confirm it's working, open **Glass Message Board** on the **Devices & service
 
 ### Part 3: Load the board's display file
 
-This makes sure your browser can draw the board. Skipping it is the most common cause of a red **Configuration error** box.
+From version 1.2.2 this happens automatically: the integration adds the board under **Settings → Dashboards → Resources** and keeps it on the current version after every update. You don't need to do anything.
 
-1. If you don't see **Resources** in the next step, turn on **Advanced mode** first: select your **profile picture** (bottom left) and switch on **Advanced mode**.
-2. Go to **Settings → Dashboards**, select **⋮** (top right), then **Resources**.
-3. Select **+ Add resource** and enter:
-   - **URL:** `/glass_messages/glass-message-board.js?v=1.2.1` (the number at the end is the version you installed)
-   - **Resource type:** **JavaScript module**
-4. Select **Create**.
-5. Refresh the page:
-   - **Computer:** press **Ctrl + Shift + R** (Mac: **Cmd + Shift + R**).
-   - **Companion app:** go to **Settings → Companion app → Debugging → Reset frontend cache**, then reopen the app.
+After installing or updating, refresh the page once so your browser loads the board:
+
+- **Computer:** press **Ctrl + Shift + R** (Mac: **Cmd + Shift + R**).
+- **Companion app:** go to **Settings → Companion app → Debugging → Reset frontend cache**, then reopen the app.
+
+<details>
+<summary>Only if your dashboards are managed in YAML</summary>
+
+If you manage dashboards in YAML (`lovelace: mode: yaml` in `configuration.yaml`), the integration can't edit your resources. It loads the board on every page instead, so it still works. If you prefer to list it yourself, add this under `lovelace: resources:`:
+
+```yaml
+- url: /glass_messages/glass-message-board.js?v=1.2.2
+  type: module
+```
+
+</details>
 
 > [!TIP]
 > To check that the file is reachable, open your Home Assistant address followed by `/glass_messages/glass-message-board.js`, for example `http://homeassistant.local:8123/glass_messages/glass-message-board.js`. You should see a page of code.
@@ -392,8 +399,8 @@ Custom frontends can use the following commands:
 Your browser hasn't loaded the board's display file. Work through these steps in order and check the dashboard after each one.
 
 1. Go to **Settings → Devices & services** and check that **Glass Message Board** is listed. If it isn't, complete [Part 2](#part-2-turn-on-the-integration).
-2. Go to **Settings → Dashboards → ⋮ → Resources** and check that `/glass_messages/glass-message-board.js` is listed as a **JavaScript module**. If it isn't, complete [Part 3](#part-3-load-the-boards-display-file). This fixes most red boxes.
-3. Restart Home Assistant, then hard-refresh the page (**Ctrl + Shift + R**, or **Reset frontend cache** in the companion app).
+2. Restart Home Assistant, then hard-refresh the page (**Ctrl + Shift + R**, or **Reset frontend cache** in the companion app). From version 1.2.2 the restart adds the board to your dashboard resources automatically.
+3. Go to **Settings → Dashboards → ⋮ → Resources** (turn on **Advanced mode** in your profile if you don't see it) and check that `/glass_messages/glass-message-board.js` is listed as a **JavaScript module**. If it's missing, select **+ Add resource**, enter `/glass_messages/glass-message-board.js` as a **JavaScript module**, and refresh again.
 4. Open your Home Assistant address followed by `/glass_messages/glass-message-board.js`, for example `http://homeassistant.local:8123/glass_messages/glass-message-board.js`.
    - If you see a page of code, the file is fine: clear the browser cache and try again.
    - If you see **404: Not Found**, go to **Settings → System → Logs**, search for `glass`, and include what you find when reporting the problem.
@@ -410,11 +417,11 @@ Your browser hasn't loaded the board's display file. Work through these steps in
 | Dictation reports **Microphone blocked** | Open Home Assistant over HTTPS and allow microphone access in the browser. |
 | No push notifications | Open **People**, edit the person and check that a phone is selected. For Home Assistant `person` entities, check **Settings → Devices & services → Glass Message Board → Configure**. |
 | A phone is missing from the list | Install the Home Assistant app on that phone and sign in, then reopen the People screen. |
-| There's no palette button or Stickers row | You're on a version older than 1.2.1. Update in the Marketplace, then see **The board still looks like the old version after an update** at the bottom of this table. |
+| There's no palette button or Stickers row | You're on a version older than 1.2.1. Update in the Marketplace, restart Home Assistant, then hard-refresh the page. |
 | The Marketplace doesn't offer an update | Open **Glass Message Board** in the Marketplace, open the **⋮** menu and choose **Update information**. Updates appear once a new release is published on GitHub. |
 | A note disappeared | It reached the time chosen under **Stays**. To keep a note, **Pin** it or choose **Keep** when writing it. |
 | There's no **Delete** button on a note | Only the sender, the recipient or a Home Assistant administrator can delete a note. Anyone can pin or react. |
-| The board still looks like the old version after an update | Go to **Settings → Dashboards → ⋮ → Resources**, select the Glass Message Board entry and change the number at the end of the URL to the new version (for example `?v=1.2.1`). Then hard-refresh the browser, or reset the companion app's frontend cache. |
+| The board still looks like the old version after an update | Restart Home Assistant, then hard-refresh the browser or reset the companion app's frontend cache. From 1.2.2 the integration updates the version number in your resources automatically. On 1.2.1 or older, change the number at the end of the resource URL by hand (**Settings → Dashboards → ⋮ → Resources**). |
 
 ## Contributing
 

@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.2] - 2026-10-31
+
+### Added
+
+- The integration now adds the board to **Settings → Dashboards → Resources** automatically and updates its version number after every update, so tablets always load the current board. An entry added by hand is updated rather than duplicated. Dashboards in YAML mode get the board loaded on every page instead.
+
+### Changed
+
+- Setup Part 3 is now automatic.
+- Clearer troubleshooting: an easier red-box checklist, a full example address, where voice dictation works, and new entries for missing features, updates not showing, notes that disappear and the missing Delete button.
+- README pictures use full web addresses so they also appear on the Home Assistant Marketplace page.
+
 ## [1.2.1] - 2026-10-31
 
 ### Fixed

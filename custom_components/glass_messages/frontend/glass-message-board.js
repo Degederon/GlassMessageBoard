@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.2.1";
+  const VERSION = "1.2.2";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
