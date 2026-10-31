@@ -14,6 +14,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     EVENT_NEW_MESSAGE,
     EVERYONE,
+    MAX_MEMBERS,
     MAX_MESSAGES,
     SIGNAL_UPDATED,
     STORAGE_KEY,
@@ -28,12 +29,18 @@ class MessageBoard:
         self.hass = hass
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self._messages: dict[str, dict[str, Any]] = {}
+        self._members: dict[str, dict[str, Any]] = {}
+        self._settings: dict[str, Any] = {"include_ha_people": True}
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
         self._messages = {
             m["id"]: m for m in data.get("messages", []) if isinstance(m, dict) and "id" in m
         }
+        self._members = {
+            m["id"]: m for m in data.get("members", []) if isinstance(m, dict) and "id" in m
+        }
+        self._settings.update(data.get("settings", {}))
         self.purge_expired()
 
     # ------------------------------------------------------------------ read
@@ -42,6 +49,18 @@ class MessageBoard:
         """All messages, pinned first, newest first."""
         ordered = sorted(self._messages.values(), key=lambda m: m["created"], reverse=True)
         return sorted(ordered, key=lambda m: not m.get("pinned"))
+
+    @property
+    def members(self) -> list[dict[str, Any]]:
+        """People added on the board itself (no Home Assistant account needed)."""
+        return sorted(self._members.values(), key=lambda m: m["name"].lower())
+
+    @property
+    def settings(self) -> dict[str, Any]:
+        return dict(self._settings)
+
+    def get_member(self, member_id: str | None) -> dict[str, Any] | None:
+        return self._members.get(member_id) if member_id else None
 
     def get(self, message_id: str) -> dict[str, Any] | None:
         return self._messages.get(message_id)
@@ -65,6 +84,7 @@ class MessageBoard:
         sender_name: str | None = None,
         sender_user_id: str | None = None,
         recipient: str = EVERYONE,
+        recipient_name: str | None = None,
         expires_at: datetime | None = None,
         pinned: bool = False,
         tint: str = "clear",
@@ -83,6 +103,7 @@ class MessageBoard:
             "sender_name": sender_name,
             "sender_user_id": sender_user_id,
             "recipient": recipient,
+            "recipient_name": recipient_name,
             "created": dt_util.utcnow().isoformat(),
             "expires_at": expires_at.isoformat() if expires_at else None,
             "pinned": bool(pinned),
@@ -159,6 +180,52 @@ class MessageBoard:
             self.delete(message_id)
         return len(doomed)
 
+    # --------------------------------------------------------------- people
+    @callback
+    def save_member(
+        self,
+        *,
+        member_id: str | None,
+        name: str,
+        emoji: str,
+        hue: int,
+        notify: list[str],
+    ) -> dict[str, Any]:
+        name = name.strip()
+        if not name:
+            raise ValueError("Please enter a name")
+        if member_id and member_id not in self._members:
+            raise KeyError(member_id)
+        if not member_id and len(self._members) >= MAX_MEMBERS:
+            raise ValueError(f"The board can hold up to {MAX_MEMBERS} people")
+        member_id = member_id or f"member.{uuid.uuid4().hex[:8]}"
+        member = {"id": member_id, "name": name, "emoji": emoji, "hue": int(hue) % 360, "notify": notify}
+        self._members[member_id] = member
+        self._members_changed()
+        return member
+
+    @callback
+    def remove_member(self, member_id: str) -> bool:
+        if self._members.pop(member_id, None) is None:
+            return False
+        self._members_changed()
+        return True
+
+    @callback
+    def update_settings(self, **settings: Any) -> dict[str, Any]:
+        self._settings.update(settings)
+        self._members_changed()
+        return self.settings
+
+    def _members_changed(self) -> None:
+        self._save()
+        async_dispatcher_send(
+            self.hass,
+            SIGNAL_UPDATED,
+            "people",
+            {"members": self.members, "settings": self.settings},
+        )
+
     # -------------------------------------------------------------- internal
     def _enforce_limit(self) -> None:
         if len(self._messages) <= MAX_MESSAGES:
@@ -170,6 +237,16 @@ class MessageBoard:
         while len(self._messages) > MAX_MESSAGES and removable:
             self.delete(removable.pop(0)["id"])
 
+    def _save(self) -> None:
+        self._store.async_delay_save(
+            lambda: {
+                "messages": list(self._messages.values()),
+                "members": list(self._members.values()),
+                "settings": self._settings,
+            },
+            1,
+        )
+
     def _changed(self, action: str, message: dict[str, Any]) -> None:
-        self._store.async_delay_save(lambda: {"messages": list(self._messages.values())}, 1)
+        self._save()
         async_dispatcher_send(self.hass, SIGNAL_UPDATED, action, message)

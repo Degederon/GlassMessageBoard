@@ -29,7 +29,16 @@ from .const import (
 def async_register_websocket(hass: HomeAssistant) -> None:
     if hass.data.get(DATA_WS):
         return
-    for handler in (ws_subscribe, ws_post, ws_delete, ws_pin, ws_react):
+    for handler in (
+        ws_subscribe,
+        ws_post,
+        ws_delete,
+        ws_pin,
+        ws_react,
+        ws_member_save,
+        ws_member_remove,
+        ws_settings,
+    ):
         websocket_api.async_register_command(hass, handler)
     hass.data[DATA_WS] = True
 
@@ -75,7 +84,13 @@ def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection
     connection.send_message(
         websocket_api.event_message(
             msg["id"],
-            {"action": "snapshot", "messages": board.messages, "config": _client_config(hass)},
+            {
+                "action": "snapshot",
+                "messages": board.messages,
+                "members": board.members,
+                "settings": board.settings,
+                "config": _client_config(hass),
+            },
         )
     )
 
@@ -106,6 +121,7 @@ def ws_post(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg
             sender_name=h.display_name(hass, sender, connection.user.name),
             sender_user_id=connection.user.id,
             recipient=msg["to"],
+            recipient_name=None if msg["to"] == EVERYONE else h.display_name(hass, msg["to"], None),
             expires_at=h.resolve_expiry(msg.get("expires_at"), None),
             pinned=msg["pinned"],
             tint=msg["tint"],
@@ -167,3 +183,61 @@ def ws_react(hass: HomeAssistant, connection: websocket_api.ActiveConnection, ms
         connection.send_error(msg["id"], "not_found", "Message not found")
         return
     connection.send_result(msg["id"])
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "glass_messages/member/save",
+        vol.Optional("member_id"): vol.Any(None, vol.All(str, vol.Match(r"^member\.[0-9a-f]{4,32}$"))),
+        vol.Required("name"): vol.All(str, vol.Strip, vol.Length(min=1, max=40)),
+        vol.Optional("emoji", default="🙂"): vol.All(str, vol.Length(min=1, max=16)),
+        vol.Optional("hue", default=210): vol.All(vol.Coerce(int), vol.Range(min=0, max=359)),
+        vol.Optional("notify", default=[]): [vol.All(str, vol.Match(r"^notify\.[a-z0-9_]+$"))],
+    }
+)
+@callback
+def ws_member_save(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg) -> None:
+    if (board := _board(hass, connection, msg)) is None:
+        return
+    try:
+        member = board.save_member(
+            member_id=msg.get("member_id"),
+            name=msg["name"],
+            emoji=msg["emoji"],
+            hue=msg["hue"],
+            notify=msg["notify"],
+        )
+    except KeyError:
+        connection.send_error(msg["id"], "not_found", "That person is no longer on the board")
+        return
+    except ValueError as err:
+        connection.send_error(msg["id"], "invalid_format", str(err))
+        return
+    connection.send_result(msg["id"], member)
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): "glass_messages/member/remove", vol.Required("member_id"): str}
+)
+@callback
+def ws_member_remove(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg) -> None:
+    if (board := _board(hass, connection, msg)) is None:
+        return
+    if not board.remove_member(msg["member_id"]):
+        connection.send_error(msg["id"], "not_found", "That person is no longer on the board")
+        return
+    connection.send_result(msg["id"])
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "glass_messages/settings",
+        vol.Optional("include_ha_people"): bool,
+    }
+)
+@callback
+def ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg) -> None:
+    if (board := _board(hass, connection, msg)) is None:
+        return
+    changes = {k: v for k, v in msg.items() if k == "include_ha_people"}
+    connection.send_result(msg["id"], board.update_settings(**changes))

@@ -6,7 +6,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.0.0-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![Glass Message Board on a wall tablet](docs/images/board.png)
@@ -20,6 +20,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Getting started](#getting-started)
 - [Dashboard configuration](#dashboard-configuration)
 - [Notifications](#notifications)
 - [Actions](#actions)
@@ -35,17 +36,18 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 
 | Feature | Description |
 |---|---|
-| **Per-person messaging** | Sender and recipient selection for every `person` entity, with profile pictures. Notes addressed to the signed-in user are highlighted. |
+| **Simple people setup** | Add household members right on the board with a name, emoji picture and colour. No Home Assistant accounts required. Existing Home Assistant users can be shown too. |
+| **Guided note form** | Three clear steps: who's writing, who it's for, and the message. Advanced options stay tucked away until needed. |
 | **Write, dictate or draw** | Touch-optimized text input with quick emoji, browser-based voice dictation, and a handwriting pad with six ink colors, three pen sizes and undo. |
 | **Pinning and expiry** | Notes can last 1 hour, until tonight, 1 day, 1 week, or indefinitely. Pinned notes never expire and always appear first. |
 | **Reactions and replies** | Open any note to react, reply to the sender, pin it or delete it. |
 | **Ambient mode** | After a configurable idle period, the board shows a large clock and a rotating spotlight of notes, prioritizing those for the current user. |
 | **Automation support** | Actions, a new-message event and per-person sensors let automations post notes and respond to them. |
-| **Mobile notifications** | Each person can be mapped to one or more `notify` services to receive a push notification when a note arrives. |
+| **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
 
 <p align="center">
-  <img src="docs/images/compose.png" alt="Composing a note" width="49%">
-  <img src="docs/images/note-detail.png" alt="Reacting to a handwritten note" width="49%">
+  <img src="docs/images/compose.png" alt="The three-step note form" width="49%">
+  <img src="docs/images/people.png" alt="The People screen" width="49%">
 </p>
 
 ### Architecture
@@ -80,6 +82,17 @@ A single installation provides two components:
 
 Go to **Settings → Devices & services → Add integration** and select **Glass Message Board**.
 
+## Getting started
+
+1. Open the dashboard with the board. The first time, it shows a welcome screen.
+2. Tap **Add people**. Type a name, choose a picture and colour, and optionally choose the phone to notify. Tap **Add person**, then repeat for everyone in your home.
+3. Tap **Leave a note**, choose who's writing and who it's for, type your message and tap **Send**.
+
+You can return to the **People** button in the header at any time to edit or remove names. While writing a note you can also tap **Add name** to add someone on the spot.
+
+> [!NOTE]
+> If you already use Home Assistant `person` entities, they appear on the board automatically. You can hide them from the People screen.
+
 ## Dashboard configuration
 
 For wall tablets, add the card to a **Panel** view (or a full-width **Sections** view) so it fills the screen. The card can be configured in the visual editor or in YAML:
@@ -108,11 +121,13 @@ background_image: /local/wallpaper.jpg
 
 ## Notifications
 
-To configure push notifications, go to **Settings → Devices & services → Glass Message Board → Configure**.
+The easiest way to set up notifications is on the board itself: open **People**, edit a person and choose their phone. Phones appear in the list once the Home Assistant app is installed on them.
+
+For Home Assistant `person` entities, and for extra settings, go to **Settings → Devices & services → Glass Message Board → Configure**.
 
 | Setting | Description |
 |---|---|
-| **Per-person services** | The `notify` service(s) for each person's devices, for example `notify.mobile_app_pixel_8`. |
+| **Per-person services** | The `notify` service(s) for each Home Assistant `person`, for example `notify.mobile_app_pixel_8`. |
 | **Extra services for notes to everyone** | Additional services notified for every note addressed to everyone. |
 | **Notification tap path** | Dashboard path to open when a notification is tapped, for example `/lovelace/notes`. |
 | **Default note lifetime** | The expiry option preselected when composing, in hours. `0` keeps notes indefinitely. |
@@ -138,8 +153,8 @@ To configure push notifications, go to **Settings → Devices & services → Gla
 | Field | Required | Description |
 |---|---|---|
 | `message` | Yes | Note text, up to 2,000 characters. |
-| `to` | No | A `person` entity, or `everyone` (default). |
-| `from` | No | Sender `person` entity. Defaults to the user who ran the action. |
+| `to` | No | A `person` entity, a board member ID (`member.…`), or `everyone` (default). |
+| `from` | No | Sender `person` entity or board member ID. Defaults to the user who ran the action. |
 | `sender_name` | No | Display name for notes not sent by a person, such as `Laundry`. |
 | `expires_in` | No | Lifetime in minutes. |
 | `expires_at` | No | Exact expiry date and time. Takes precedence over `expires_in`. |
@@ -216,11 +231,11 @@ actions:
 
 | Action | Allowed for |
 |---|---|
-| Post, react, pin | All users |
+| Post, react, pin, manage people | All users |
 | Delete | Administrators, the sender and the recipient |
 
 - Notes are stored locally in `.storage/glass_messages.messages`. No data leaves your Home Assistant instance except through the notification services you configure.
-- Up to 200 notes are retained. When the limit is reached, the oldest unpinned notes are removed first.
+- Up to 200 notes and 30 board members are retained. When the limit is reached, the oldest unpinned notes are removed first.
 - Drawings are stored as compact vector strokes rather than images.
 
 ## WebSocket API
@@ -234,6 +249,9 @@ Custom frontends can use the following commands:
 | `glass_messages/delete` | Deletes a note. |
 | `glass_messages/pin` | Pins or unpins a note. |
 | `glass_messages/react` | Toggles a reaction. |
+| `glass_messages/member/save` | Adds or updates a board member. |
+| `glass_messages/member/remove` | Removes a board member. |
+| `glass_messages/settings` | Shows or hides Home Assistant users on the board. |
 
 ## Troubleshooting
 
@@ -243,7 +261,9 @@ Custom frontends can use the following commands:
 | **Custom element doesn't exist** | Restart Home Assistant after installing, then hard-refresh the browser or clear the companion app's frontend cache. |
 | The microphone button is missing | The browser doesn't support speech recognition. Chrome, Edge and Safari support it. |
 | Dictation reports **Microphone blocked** | Access Home Assistant over HTTPS and allow microphone access in the browser. |
-| No push notifications | Check that each person has a `notify` service selected in the integration options. |
+| No push notifications | Open **People**, edit the person and check that a phone is selected. For Home Assistant `person` entities, check the integration options. |
+| A phone is missing from the list | Install the Home Assistant app on that phone and sign in, then reopen the People screen. |
+| The board still looks like the old version | Refresh the browser, or clear the companion app's frontend cache. |
 
 ## Contributing
 

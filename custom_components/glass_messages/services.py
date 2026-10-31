@@ -58,6 +58,7 @@ def async_register_services(hass: HomeAssistant) -> None:
             sender_name=call.data.get("sender_name") or h.display_name(hass, sender, "Home"),
             sender_user_id=call.context.user_id,
             recipient=call.data["to"],
+            recipient_name=None if call.data["to"] == EVERYONE else h.display_name(hass, call.data["to"], None),
             expires_at=h.resolve_expiry(call.data.get("expires_at"), call.data.get("expires_in")),
             pinned=call.data["pinned"],
             tint=call.data["tint"],

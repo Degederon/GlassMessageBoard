@@ -11,17 +11,17 @@ post:
           multiline: true
     to:
       name: To
-      description: A person entity, or "everyone".
+      description: A person entity, a board member id (member.xxxx), or "everyone".
       default: everyone
-      example: person.jay
+      example: person.maya
       selector:
         text:
     from:
       name: From
-      description: Person entity of the sender. Defaults to the user running the action.
+      description: Person entity or board member id of the sender. Defaults to the user running the action.
+      example: person.maya
       selector:
-        entity:
-          domain: person
+        text:
     sender_name:
       name: Sender name
       description: Name to show when not sent by a person (e.g. "Home" or "Washer").

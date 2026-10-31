@@ -8,7 +8,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_NOTIFY_EVERYONE, CONF_NOTIFY_URL, EVERYONE
+from .const import CONF_NOTIFY_EVERYONE, CONF_NOTIFY_URL, DOMAIN, EVERYONE, MEMBER_PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,11 +33,20 @@ async def async_handle_notify(
     sender = message.get("sender")
     targets: set[str] = set()
 
+    board = hass.data.get(DOMAIN)
+    members = board.members if board is not None else []
+
     if recipient == EVERYONE:
         for key, value in options.items():
             if key.startswith("person.") and key != sender:
                 targets.update(_as_list(value))
+        for member in members:
+            if member["id"] != sender:
+                targets.update(_as_list(member.get("notify")))
         targets.update(_as_list(options.get(CONF_NOTIFY_EVERYONE)))
+    elif recipient.startswith(MEMBER_PREFIX):
+        member = next((m for m in members if m["id"] == recipient), None)
+        targets.update(_as_list(member.get("notify") if member else None))
     else:
         targets.update(_as_list(options.get(recipient)))
 

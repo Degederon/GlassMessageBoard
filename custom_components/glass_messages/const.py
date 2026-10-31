@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "glass_messages"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 STORAGE_KEY = f"{DOMAIN}.messages"
 STORAGE_VERSION = 1
@@ -16,6 +16,8 @@ DATA_FRONTEND = f"{DOMAIN}_frontend_registered"
 DATA_WS = f"{DOMAIN}_ws_registered"
 
 EVERYONE = "everyone"
+MEMBER_PREFIX = "member."
+MAX_MEMBERS = 30
 
 # Limits keep the store (and the websocket payloads) small and fast.
 MAX_TEXT = 2000

@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
@@ -29,6 +29,25 @@
     { k: "never", label: "Keep" },
   ];
   const AVATAR_HUES = [200, 280, 330, 20, 150, 50, 240, 100];
+  const MEMBER_EMOJI = ["🙂", "😎", "🥰", "🤓", "🦊", "🐱", "🐶", "🐼", "🦄", "🐸", "🌻", "🌙", "⭐", "🚀", "🎸", "⚽", "🍩", "👵", "👴", "👶"];
+  const HUES = [210, 260, 300, 340, 15, 40, 140, 175];
+  const LAST_SENDER_KEY = "glass-message-board:last-sender";
+  const storage = {
+    get(k) {
+      try {
+        return window.localStorage.getItem(k);
+      } catch (e) {
+        return null;
+      }
+    },
+    set(k, v) {
+      try {
+        window.localStorage.setItem(k, v);
+      } catch (e) {
+        /* storage unavailable */
+      }
+    },
+  };
 
   const esc = (s) =>
     String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -49,6 +68,9 @@
     trash: '<svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
     reply: '<svg viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg>',
     plus: '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
+    people: '<svg viewBox="0 0 24 24"><path d="M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1a4.2 4.2 0 0 1 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>',
+    edit: '<svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.8l11-11.1-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24"><path d="M8.6 16.6 13.2 12 8.6 7.4 10 6l6 6-6 6z"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>',
   };
 
@@ -157,7 +179,7 @@
   .tabs { display:inline-flex; padding:4px; border-radius:999px; background: rgba(0,0,0,.2); margin: 8px 0 12px; }
   .tabs button { padding: 9px 20px; border-radius:999px; font-size:14px; color: var(--gm-dim); }
   .tabs button.on { background: rgba(255,255,255,.22); color: var(--gm-text); }
-  textarea { width:100%; min-height: 150px; resize:vertical; border-radius: 20px; padding: 16px 18px; font: inherit; font-size: 20px; line-height:1.4;
+  textarea { width:100%; min-height: 120px; resize:vertical; border-radius: 20px; padding: 16px 18px; font: inherit; font-size: 20px; line-height:1.4;
     color: var(--gm-text); background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.16); outline:none; }
   textarea:focus { border-color: rgba(255,255,255,.45); }
   textarea::placeholder { color: rgba(255,255,255,.4); }
@@ -177,6 +199,8 @@
     background: linear-gradient(135deg, rgba(var(--tint),.9), rgba(var(--tint),.35)); }
   .tint-dot.on { border-color:#fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
   .sheet-foot { display:flex; align-items:center; gap:12px; margin-top: 18px; }
+  .compose-scrim .sheet-foot { position: sticky; bottom: -24px; margin: 12px -26px -24px; padding: 14px 26px 20px;
+    background: linear-gradient(to top, rgba(14,18,44,.92) 55%, rgba(14,18,44,0)); border-radius: 0 0 var(--gm-radius) var(--gm-radius); }
   .err { color: #ffb3c4; font-size:14px; flex:1; }
   .primary { display:inline-flex; align-items:center; gap:10px; padding: 14px 28px; border-radius:999px; font-weight:600; font-size:16px;
     background: linear-gradient(135deg, #fff, #dfe5ff); color:#121735; box-shadow: 0 10px 30px -8px rgba(120,140,255,.8); }
@@ -205,7 +229,75 @@
   .a-spot .text { font-size: clamp(22px, 2.6vw, 32px); }
   .a-hint { position:absolute; bottom: 24px; font-size:13px; color: rgba(255,255,255,.4); letter-spacing:.1em; text-transform: uppercase; }
 
-  @media (max-width: 600px) { .title { display:none; } header { padding: 12px 14px; } .row > label { width:100%; } }
+  .ghost-btn { display:inline-flex; align-items:center; gap:8px; padding: 12px 18px; border-radius:999px; font-size:15px; font-weight:500;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); }
+  .ghost-btn svg { font-size:20px; }
+  .empty .cta { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top: 20px; }
+
+  /* steps + tiles */
+  .step { margin: 18px 0 6px; }
+  .step-h { display:flex; align-items:center; gap:10px; margin: 0 0 10px; font-size: 15px; font-weight:600; }
+  .step-h i { font-style:normal; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:13px;
+    background: rgba(255,255,255,.9); color:#121735; }
+  .step-h small { font-weight:400; color: var(--gm-dim); font-size: 13px; }
+  .tiles { display:grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap:10px; }
+  .tile { display:flex; flex-direction:column; align-items:center; gap:8px; padding: 12px 6px 10px; border-radius: 20px; min-width:0;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); font-size:14px; transition: background .2s, border-color .2s, transform .15s; }
+  .tile span:last-child { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tile:active { transform: scale(.96); }
+  .tile.on { background: rgba(255,255,255,.26); border-color: rgba(255,255,255,.65); box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
+  .tile .avatar { width:54px; height:54px; font-size: 26px; }
+  .tile.add { color: var(--gm-dim); }
+  .tile.add .ring { width:54px; height:54px; border-radius:50%; display:grid; place-items:center; font-size:24px; border: 1.5px dashed rgba(255,255,255,.5); }
+  .everyone-av { width:54px; height:54px; border-radius:50%; display:grid; place-items:center; font-size:26px;
+    background: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,.1)); border: 1.5px solid rgba(255,255,255,.55); }
+  .quick-add { grid-column: 1 / -1; display:flex; gap:8px; align-items:center; padding: 8px; border-radius: 20px; background: rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.2); }
+  .field { flex:1; min-width:0; height: 52px; border-radius: 16px; padding: 0 16px; font: inherit; font-size: 18px; color: var(--gm-text);
+    background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.18); outline:none; }
+  .field:focus { border-color: rgba(255,255,255,.55); }
+  .field::placeholder { color: rgba(255,255,255,.4); }
+  select.field { appearance:none; -webkit-appearance:none; font-size:16px; cursor:pointer;
+    background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,.7) 50%), linear-gradient(135deg, rgba(255,255,255,.7) 50%, transparent 50%);
+    background-position: calc(100% - 22px) 23px, calc(100% - 16px) 23px; background-size: 6px 6px; background-repeat:no-repeat; padding-right: 40px; }
+  select.field option { color:#121735; }
+  .small-btn { padding: 0 18px; height: 44px; border-radius: 999px; font-weight:600; background:#fff; color:#121735; }
+  .more { display:inline-flex; align-items:center; gap:6px; margin-top: 16px; font-size:14px; color: var(--gm-dim); padding: 6px 0; }
+  .more svg { transition: transform .2s; font-size:18px; }
+  .more.open svg { transform: rotate(90deg); }
+
+  /* people panel */
+  .lead { margin: -4px 0 16px; color: var(--gm-dim); line-height:1.5; }
+  .card-inset { padding: 18px; border-radius: 22px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.12); }
+  .card-inset h3, .people-sec h3 { margin: 0 0 12px; font-size: 13px; letter-spacing:.08em; text-transform:uppercase; color: var(--gm-dim); font-weight:600; }
+  .pform-top { display:flex; gap:14px; align-items:center; }
+  .avatar.xl { width:64px; height:64px; font-size:32px; }
+  .label { margin: 16px 0 8px; font-size:13px; color: var(--gm-dim); }
+  .label .opt { opacity:.7; font-style: italic; }
+  .emoji-grid { display:flex; flex-wrap:wrap; gap:4px; }
+  .emoji.on { background: rgba(255,255,255,.26); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.7); }
+  .hues { display:flex; gap:10px; flex-wrap:wrap; }
+  .hue { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.3);
+    background: linear-gradient(135deg, hsl(var(--h) 80% 65%), hsl(calc(var(--h) + 40) 80% 50%)); }
+  .hue.on { border-color:#fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+  .pform-foot { display:flex; align-items:center; gap:10px; margin-top: 18px; flex-wrap:wrap; }
+  .people-sec { margin-top: 22px; }
+  .person-row { display:flex; align-items:center; gap:12px; padding: 10px 6px; border-top: 1px solid rgba(255,255,255,.1); }
+  .person-row .pinfo { flex:1; min-width:0; }
+  .person-row b { display:block; font-weight:500; font-size:16px; }
+  .person-row small { color: var(--gm-dim); font-size: 13px; }
+  .person-row .ghost-btn { padding: 8px 14px; font-size:14px; }
+  .person-row .ghost-btn.danger, .ghost-btn.danger { color:#ffc2d1; }
+  .muted { color: var(--gm-dim); margin: 4px 0 0; }
+  .switch { position:relative; width:52px; height:30px; border-radius:999px; background: rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.25); flex:none; }
+  .switch::after { content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition: transform .2s; }
+  .switch.on { background: #6e7cff; }
+  .switch.on::after { transform: translateX(22px); }
+  .sec-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .sec-head h3 { margin:0; }
+
+  @media (max-width: 600px) { .title { display:none; } header { padding: 12px 14px; } .row > label { width:100%; } .new span, .people-btn span { display:none; }
+    .sheet { padding: 18px 18px 20px; } .compose-scrim .sheet-foot { margin: 12px -18px -20px; padding: 12px 18px 16px; bottom: -20px; }
+    .avatar.xl { width:48px; height:48px; font-size:24px; } .pform-top { gap:10px; } .card-inset { padding: 14px; } }
   @media (prefers-reduced-motion: reduce) { .aurora i, .note, .sheet, .detail { animation: none !important; } }
   `;
 
@@ -220,6 +312,9 @@
       this._ambient = false;
       this._spotIndex = 0;
       this._compose = null;
+      this._members = [];
+      this._settings = { include_ha_people: true };
+      this._peopleUi = null;
     }
 
     static getStubConfig() {
@@ -324,7 +419,12 @@
       if (ev.action === "snapshot") {
         this._messages = new Map(ev.messages.map((m) => [m.id, m]));
         this._serverConfig = ev.config || {};
+        this._members = ev.members || [];
+        this._settings = ev.settings || { include_ha_people: true };
         this._loaded = true;
+      } else if (ev.action === "people") {
+        this._members = ev.message.members || [];
+        this._settings = ev.message.settings || this._settings;
       } else if (ev.action === "removed") {
         this._messages.delete(ev.message.id);
         if (this._openId === ev.message.id) this._closeDetail();
@@ -337,6 +437,10 @@
       this._renderFilters();
       this._renderBoard();
       if (this._ambient) this._renderSpot(true);
+      if (ev.action === "snapshot" || ev.action === "people") {
+        if (this._compose) this._syncCompose();
+        if (this._peopleUi) this._renderPeople();
+      }
     }
 
     _sorted() {
@@ -345,7 +449,7 @@
       );
     }
 
-    _people() {
+    _haPeople() {
       const states = (this._hass && this._hass.states) || {};
       return Object.keys(states)
         .filter((id) => id.startsWith("person."))
@@ -354,8 +458,29 @@
           name: states[id].attributes.friendly_name || id.slice(7),
           pic: states[id].attributes.entity_picture || "",
           user: states[id].attributes.user_id,
+          ha: true,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    _people() {
+      const members = (this._members || []).map((m) => ({ id: m.id, name: m.name, emoji: m.emoji, hue: m.hue, notify: m.notify || [], member: true }));
+      const ha = this._settings && this._settings.include_ha_people === false ? [] : this._haPeople();
+      return [...members, ...ha].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    _notifyServices() {
+      const svcs = Object.keys((this._hass && this._hass.services && this._hass.services.notify) || {}).filter(
+        (s) => !["send_message", "persistent_notification"].includes(s)
+      );
+      const pretty = (s) => {
+        const mobile = s.startsWith("mobile_app_");
+        const base = (mobile ? s.slice(11) : s).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        return mobile ? `${base} (phone app)` : base;
+      };
+      return svcs
+        .sort((a, b) => (b.startsWith("mobile_app_") - a.startsWith("mobile_app_")) || a.localeCompare(b))
+        .map((s) => ({ value: `notify.${s}`, label: pretty(s) }));
     }
 
     _me() {
@@ -369,7 +494,7 @@
     }
 
     _person(id, fallbackName) {
-      const p = id && this._people().find((x) => x.id === id);
+      const p = id && [...this._people(), ...this._haPeople()].find((x) => x.id === id);
       if (p) return p;
       return { id: id || "home", name: fallbackName || "Home", pic: "", home: !id };
     }
@@ -399,6 +524,7 @@
               <div class="clock"><div class="time"></div><div class="date"></div></div>
               <div class="title"></div>
               <nav class="filters"></nav>
+              <button class="ghost-btn people-btn" data-action="people" aria-label="People">${ICON.people}<span>People</span></button>
               <button class="new" data-action="compose">${ICON.plus}<span>Leave a note</span></button>
             </header>
             <main><div class="board"></div></main>
@@ -410,6 +536,7 @@
           </div>
           <div class="scrim compose-scrim" hidden></div>
           <div class="scrim detail-scrim" hidden></div>
+          <div class="scrim people-scrim" hidden></div>
         </div>`;
       const root = this.shadowRoot.querySelector(".root");
       root.addEventListener("click", (e) => this._onClick(e));
@@ -433,8 +560,8 @@
     }
 
     _avatar(p, cls = "") {
-      const hue = AVATAR_HUES[hash(p.id) % AVATAR_HUES.length];
-      const inner = p.home ? "🏠" : p.pic ? `<img src="${esc(p.pic)}" alt="">` : esc(initials(p.name));
+      const hue = p.hue ?? AVATAR_HUES[hash(p.id) % AVATAR_HUES.length];
+      const inner = p.home ? "🏠" : p.emoji ? esc(p.emoji) : p.pic ? `<img src="${esc(p.pic)}" alt="">` : esc(initials(p.name));
       return `<span class="avatar ${cls} ${p.home ? "home" : ""}" style="--h:${hue}">${inner}</span>`;
     }
 
@@ -504,7 +631,7 @@
     _noteHTML(m, opts = {}) {
       const me = this._me();
       const s = this._person(m.sender, m.sender_name);
-      const to = m.recipient === "everyone" ? "Everyone" : this._person(m.recipient).name;
+      const to = m.recipient === "everyone" ? "Everyone" : this._person(m.recipient, m.recipient_name || "Someone").name;
       const forMe = me && m.recipient === me.id;
       const tint = TINTS[m.tint] || TINTS.clear;
       const len = (m.text || "").length;
@@ -548,8 +675,13 @@
       }
       const list = this._visible();
       if (!list.length) {
-        board.innerHTML = `<div class="empty glass" style="column-span:all"><div class="big">✨</div><h2>${this._messages.size ? "Nothing here" : "The board is clear"}</h2>
-          <p>${this._messages.size ? "No notes match this filter." : "Leave the first note: a reminder, a doodle, or just a little love."}</p></div>`;
+        const noPeople = !this._people().length;
+        const fresh = !this._messages.size;
+        board.innerHTML = `<div class="empty glass" style="column-span:all"><div class="big">${fresh && noPeople ? "👋" : "✨"}</div>
+          <h2>${!fresh ? "Nothing here" : noPeople ? "Welcome to your message board" : "The board is clear"}</h2>
+          <p>${!fresh ? "No notes match this filter." : noPeople ? "Start by adding the people in your home. Then anyone can leave them a note." : "Leave the first note: a reminder, a doodle, or just a little love."}</p>
+          ${fresh ? `<div class="cta">${noPeople ? `<button class="new" data-action="people">${ICON.people}<span>Add people</span></button>` : ""}
+            <button class="${noPeople ? "ghost-btn" : "new"}" data-action="compose">${ICON.plus}<span>Leave a note</span></button></div>` : ""}</div>`;
         return;
       }
       const animate = !this._renderedOnce;
@@ -589,6 +721,9 @@
         case "compose":
           this._openCompose();
           break;
+        case "people":
+          this._openPeople();
+          break;
         case "open":
           this._openDetail(id);
           break;
@@ -618,7 +753,8 @@
           break;
         }
         default:
-          if (this._compose) this._onComposeClick(el, a);
+          if (a.startsWith("p-")) this._onPeopleClick(el, a);
+          else if (this._compose) this._onComposeClick(el, a);
       }
     }
 
@@ -633,7 +769,10 @@
     }
 
     _toastError(text) {
-      const target = this.shadowRoot.querySelector(".detail .err") || this.shadowRoot.querySelector(".sheet .err");
+      const target =
+        this.shadowRoot.querySelector(".detail .err") ||
+        this.shadowRoot.querySelector(".people-scrim:not([hidden]) .err") ||
+        this.shadowRoot.querySelector(".compose-scrim:not([hidden]) .sheet-foot .err");
       if (target) target.textContent = text;
       else console.warn("[glass-message-board]", text);
     }
@@ -695,15 +834,24 @@
       return "1w";
     }
 
-    _openCompose(preset = {}) {
+    _defaultSender() {
       const me = this._me();
+      if (me) return me.id;
+      const last = storage.get(LAST_SENDER_KEY);
+      return last && this._people().some((p) => p.id === last) ? last : null;
+    }
+
+    _openCompose(preset = {}) {
       this._compose = {
-        from: me ? me.id : null,
+        from: this._defaultSender(),
         to: preset.to || "everyone",
         mode: "write",
         tint: "clear",
         expiry: this._defaultExpiry(),
         pinned: false,
+        more: false,
+        adding: null,
+        newName: "",
         ink: INK[0],
         width: WIDTHS[1],
         strokes: [],
@@ -713,46 +861,67 @@
       scrim.innerHTML = `
         <div class="sheet glass">
           <div class="sheet-head"><h2>Leave a note</h2><button class="icon-btn" data-action="c-close" aria-label="Close">${ICON.close}</button></div>
-          <div class="row"><label>From</label><div class="chips c-from"></div></div>
-          <div class="row"><label>To</label><div class="chips c-to"></div></div>
-          <div class="tabs"><button data-action="c-mode" data-mode="write">✍️ Write</button><button data-action="c-mode" data-mode="draw">🖍️ Draw</button></div>
-          <div class="pane-write">
-            <textarea maxlength="2000" placeholder="Write something nice…"></textarea>
-            <div class="tools">
-              <button class="icon-btn c-mic" data-action="c-mic" aria-label="Dictate" title="Dictate">${ICON.mic}</button>
-              ${INSERT_EMOJI.map((e) => `<button class="emoji" data-action="c-emoji" data-emoji="${e}">${e}</button>`).join("")}
-              <span class="count">0 / 2000</span>
+          <section class="step">
+            <h3 class="step-h"><i>1</i>Who's writing?</h3>
+            <div class="tiles c-from"></div>
+          </section>
+          <section class="step">
+            <h3 class="step-h"><i>2</i>Who's it for?</h3>
+            <div class="tiles c-to"></div>
+          </section>
+          <section class="step">
+            <h3 class="step-h"><i>3</i>Your message</h3>
+            <div class="tabs"><button data-action="c-mode" data-mode="write">✍️ Write</button><button data-action="c-mode" data-mode="draw">🖍️ Draw</button></div>
+            <div class="pane-write">
+              <textarea id="gm-c-text" maxlength="2000" placeholder="Write something nice…"></textarea>
+              <div class="tools">
+                <button class="icon-btn c-mic" data-action="c-mic" aria-label="Speak your message" title="Speak your message">${ICON.mic}</button>
+                ${INSERT_EMOJI.map((e) => `<button class="emoji" data-action="c-emoji" data-emoji="${e}" aria-label="Insert ${e}">${e}</button>`).join("")}
+                <span class="count">0 / 2000</span>
+              </div>
             </div>
-          </div>
-          <div class="pane-draw" hidden>
-            <div class="pad"><canvas></canvas><div class="hint">Draw with your finger ✨</div></div>
-            <div class="tools">
-              ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="Ink ${c}"></button>`).join("")}
-              <span style="width:10px"></span>
-              ${WIDTHS.map((w) => `<button class="width" data-action="c-width" data-w="${w}" aria-label="Pen size"><i style="width:${Math.round(w * 600)}px;height:${Math.round(w * 600)}px"></i></button>`).join("")}
-              <span style="flex:1"></span>
-              <button class="icon-btn" data-action="c-undo" aria-label="Undo">${ICON.undo}</button>
-              <button class="icon-btn" data-action="c-clear" aria-label="Clear">${ICON.trash}</button>
+            <div class="pane-draw" hidden>
+              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger ✨</div></div>
+              <div class="tools">
+                ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="Ink ${c}"></button>`).join("")}
+                <span style="width:10px"></span>
+                ${WIDTHS.map((w) => `<button class="width" data-action="c-width" data-w="${w}" aria-label="Pen size"><i style="width:${Math.round(w * 600)}px;height:${Math.round(w * 600)}px"></i></button>`).join("")}
+                <span style="flex:1"></span>
+                <button class="icon-btn" data-action="c-undo" aria-label="Undo">${ICON.undo}</button>
+                <button class="icon-btn" data-action="c-clear" aria-label="Clear drawing">${ICON.trash}</button>
+              </div>
             </div>
+          </section>
+          <button class="more" data-action="c-more">${ICON.chevron}<span>More options: colour, how long it stays, pin</span></button>
+          <div class="c-options" hidden>
+            <div class="row"><label>Colour</label><div class="chips">${Object.keys(TINTS)
+              .map((t) => `<button class="tint-dot" data-action="c-tint" data-tint="${t}" style="--tint:${TINTS[t]}" aria-label="${t}" title="${t}"></button>`)
+              .join("")}</div></div>
+            <div class="row"><label>Stays</label><div class="chips">${EXPIRY.map(
+              (x) => `<button class="chip text" data-action="c-exp" data-exp="${x.k}">${x.label}</button>`
+            ).join("")}<button class="chip text c-pin" data-action="c-pin">📌 Pin</button></div></div>
           </div>
-          <div class="row"><label>Tint</label><div class="chips">${Object.keys(TINTS)
-            .map((t) => `<button class="tint-dot" data-action="c-tint" data-tint="${t}" style="--tint:${TINTS[t]}" aria-label="${t}" title="${t}"></button>`)
-            .join("")}</div></div>
-          <div class="row"><label>Lasts</label><div class="chips">${EXPIRY.map(
-            (x) => `<button class="chip text" data-action="c-exp" data-exp="${x.k}">${x.label}</button>`
-          ).join("")}<button class="chip text c-pin" data-action="c-pin">📌 Pin</button></div></div>
-          <div class="sheet-foot"><span class="err"></span><button class="primary" data-action="c-send">${ICON.send}<span>Send</span></button></div>
+          <div class="sheet-foot"><span class="err"></span><button class="primary" data-action="c-send">${ICON.send}<span class="send-label">Send</span></button></div>
         </div>`;
       scrim.hidden = false;
       scrim.onclick = (e) => {
         if (e.target === scrim) this._closeCompose();
       };
       const ta = scrim.querySelector("textarea");
-      ta.addEventListener("input", () => this._syncCompose());
+      ta.addEventListener("input", () => this._syncCompose(false));
+      scrim.addEventListener("input", (e) => {
+        if (e.target.classList.contains("q-name") && this._compose) this._compose.newName = e.target.value;
+      });
+      scrim.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && e.target.classList.contains("q-name")) {
+          e.preventDefault();
+          this._quickAdd();
+        }
+      });
       if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) scrim.querySelector(".c-mic").style.display = "none";
       this._setupPad(scrim.querySelector(".pad"));
       this._syncCompose();
-      setTimeout(() => ta.focus(), 60);
+      if (this._compose.from || !this._people().length) setTimeout(() => ta.focus(), 60);
     }
 
     _closeCompose() {
@@ -765,39 +934,97 @@
       this._resetIdle();
     }
 
-    _syncCompose() {
+    _tile(p, action, on) {
+      return `<button class="tile ${on ? "on" : ""}" data-action="${action}" data-id="${esc(p.id)}" aria-pressed="${on}">${this._avatar(p)}<span>${esc(p.name)}</span></button>`;
+    }
+
+    _addTile(which, label) {
+      const c = this._compose;
+      if (c.adding === which) {
+        return `<div class="quick-add"><input class="field q-name" id="gm-q-${which}" maxlength="40" placeholder="Type a name" value="${esc(c.newName)}" autocomplete="off">
+          <button class="small-btn" data-action="c-add-save">Add</button><button class="icon-btn" data-action="c-add-cancel" aria-label="Cancel">${ICON.close}</button></div>`;
+      }
+      return `<button class="tile add" data-action="c-add" data-which="${which}"><span class="ring">+</span><span>${label}</span></button>`;
+    }
+
+    _syncCompose(full = true) {
       const c = this._compose;
       if (!c) return;
-      const root = this.shadowRoot.querySelector(".sheet");
+      const root = this.shadowRoot.querySelector(".compose-scrim .sheet");
+      if (!root) return;
       const people = this._people();
-      root.querySelector(".c-from").innerHTML = people.length
-        ? people.map((p) => `<button class="chip ${c.from === p.id ? "on" : ""}" data-action="c-from" data-id="${esc(p.id)}">${this._avatar(p)}<span>${esc(p.name.split(" ")[0])}</span></button>`).join("")
-        : `<span class="chip text on">You</span>`;
-      root.querySelector(".c-to").innerHTML =
-        `<button class="chip text ${c.to === "everyone" ? "on" : ""}" data-action="c-to" data-id="everyone">👨‍👩‍👧 Everyone</button>` +
-        people
-          .filter((p) => p.id !== c.from)
-          .map((p) => `<button class="chip ${c.to === p.id ? "on" : ""}" data-action="c-to" data-id="${esc(p.id)}">${this._avatar(p)}<span>${esc(p.name.split(" ")[0])}</span></button>`)
-          .join("");
-      root.querySelectorAll("[data-action=c-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === c.mode));
-      root.querySelector(".pane-write").hidden = c.mode !== "write";
-      root.querySelector(".pane-draw").hidden = c.mode !== "draw";
-      root.querySelectorAll("[data-action=c-tint]").forEach((b) => b.classList.toggle("on", b.dataset.tint === c.tint));
-      root.querySelectorAll("[data-action=c-exp]").forEach((b) => b.classList.toggle("on", !c.pinned && b.dataset.exp === c.expiry));
-      root.querySelector(".c-pin").classList.toggle("on", c.pinned);
-      root.querySelectorAll("[data-action=c-ink]").forEach((b) => b.classList.toggle("on", b.dataset.ink === c.ink));
-      root.querySelectorAll("[data-action=c-width]").forEach((b) => b.classList.toggle("on", Number(b.dataset.w) === c.width));
+      if (full) {
+        root.querySelector(".c-from").innerHTML =
+          people.map((p) => this._tile(p, "c-from", c.from === p.id)).join("") + this._addTile("from", people.length ? "Add name" : "Add your name");
+        root.querySelector(".c-to").innerHTML =
+          `<button class="tile ${c.to === "everyone" ? "on" : ""}" data-action="c-to" data-id="everyone" aria-pressed="${c.to === "everyone"}"><span class="everyone-av">🏡</span><span>Everyone</span></button>` +
+          people
+            .filter((p) => p.id !== c.from)
+            .map((p) => this._tile(p, "c-to", c.to === p.id))
+            .join("") +
+          this._addTile("to", "Add name");
+        if (c.adding) {
+          const input = root.querySelector(`#gm-q-${c.adding}`);
+          if (input && this.shadowRoot.activeElement !== input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+          }
+        }
+        root.querySelectorAll("[data-action=c-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === c.mode));
+        root.querySelector(".pane-write").hidden = c.mode !== "write";
+        root.querySelector(".pane-draw").hidden = c.mode !== "draw";
+        root.querySelector(".c-options").hidden = !c.more;
+        root.querySelector(".more").classList.toggle("open", c.more);
+        root.querySelectorAll("[data-action=c-tint]").forEach((b) => b.classList.toggle("on", b.dataset.tint === c.tint));
+        root.querySelectorAll("[data-action=c-exp]").forEach((b) => b.classList.toggle("on", !c.pinned && b.dataset.exp === c.expiry));
+        root.querySelector(".c-pin").classList.toggle("on", c.pinned);
+        root.querySelectorAll("[data-action=c-ink]").forEach((b) => b.classList.toggle("on", b.dataset.ink === c.ink));
+        root.querySelectorAll("[data-action=c-width]").forEach((b) => b.classList.toggle("on", Number(b.dataset.w) === c.width));
+        root.style.setProperty("--tint", TINTS[c.tint]);
+      }
       root.querySelector(".pad .hint").style.display = c.strokes.length ? "none" : "";
-      root.style.setProperty("--tint", TINTS[c.tint]);
       const ta = root.querySelector("textarea");
       root.querySelector(".count").textContent = `${ta.value.length} / 2000`;
+      const toName = c.to === "everyone" ? "everyone" : this._person(c.to, "them").name;
+      root.querySelector(".send-label").textContent = `Send to ${toName}`;
       const ready = ta.value.trim().length > 0 || c.strokes.length > 0;
       root.querySelector("[data-action=c-send]").disabled = !ready || c.sending;
     }
 
+    _usedLook() {
+      const used = new Set((this._members || []).map((m) => m.emoji));
+      const emoji = MEMBER_EMOJI.find((e) => !used.has(e)) || MEMBER_EMOJI[hash(String(Date.now())) % MEMBER_EMOJI.length];
+      const hue = HUES[(this._members || []).length % HUES.length];
+      return { emoji, hue };
+    }
+
+    async _quickAdd() {
+      const c = this._compose;
+      if (!c || !c.adding) return;
+      const name = (c.newName || "").trim();
+      if (!name) return;
+      const which = c.adding;
+      try {
+        const member = await this._hass.callWS({ type: "glass_messages/member/save", name, ...this._usedLook() });
+        if (!this._compose) return;
+        this._members = [...this._members.filter((m) => m.id !== member.id), member];
+        c.adding = null;
+        c.newName = "";
+        if (which === "from") {
+          c.from = member.id;
+          if (c.to === c.from) c.to = "everyone";
+        } else {
+          c.to = member.id;
+        }
+        this._syncCompose();
+      } catch (err) {
+        this._toastError((err && err.message) || String(err));
+      }
+    }
+
     _onComposeClick(el, a) {
       const c = this._compose;
-      const ta = this.shadowRoot.querySelector(".sheet textarea");
+      const ta = this.shadowRoot.querySelector(".compose-scrim textarea");
       switch (a) {
         case "c-close":
           return this._closeCompose();
@@ -807,6 +1034,18 @@
           break;
         case "c-to":
           c.to = el.dataset.id;
+          break;
+        case "c-add":
+          c.adding = el.dataset.which;
+          c.newName = "";
+          break;
+        case "c-add-cancel":
+          c.adding = null;
+          break;
+        case "c-add-save":
+          return this._quickAdd();
+        case "c-more":
+          c.more = !c.more;
           break;
         case "c-mode":
           c.mode = el.dataset.mode;
@@ -855,6 +1094,176 @@
       this._syncCompose();
     }
 
+    // --------------------------------------------------------------- people
+    _openPeople() {
+      this._peopleUi = this._blankPerson();
+      const scrim = this.shadowRoot.querySelector(".people-scrim");
+      scrim.hidden = false;
+      scrim.onclick = (e) => {
+        if (e.target === scrim) this._closePeople();
+      };
+      scrim.oninput = (e) => {
+        if (e.target.id === "gm-p-name" && this._peopleUi) this._peopleUi.name = e.target.value;
+      };
+      scrim.onchange = (e) => {
+        if (e.target.id === "gm-p-notify" && this._peopleUi) this._peopleUi.notify = e.target.value;
+      };
+      scrim.onkeydown = (e) => {
+        if (e.key === "Enter" && e.target.id === "gm-p-name") {
+          e.preventDefault();
+          this._savePerson();
+        }
+      };
+      this._renderPeople();
+      setTimeout(() => {
+        const input = scrim.querySelector("#gm-p-name");
+        if (input && !this._people().length) input.focus();
+      }, 60);
+    }
+
+    _blankPerson() {
+      return { editId: null, name: "", notify: "", confirm: null, error: "", ...this._usedLook() };
+    }
+
+    _closePeople() {
+      this._peopleUi = null;
+      const s = this.shadowRoot.querySelector(".people-scrim");
+      s.hidden = true;
+      s.innerHTML = "";
+      this._resetIdle();
+    }
+
+    _renderPeople() {
+      const ui = this._peopleUi;
+      const scrim = this.shadowRoot.querySelector(".people-scrim");
+      if (!ui || !scrim) return;
+      const services = this._notifyServices();
+      const label = (v) => (services.find((s) => s.value === v) || { label: String(v).replace(/^notify\./, "") }).label;
+      const members = this._members || [];
+      const ha = this._haPeople();
+      const haOn = !(this._settings && this._settings.include_ha_people === false);
+      const scrollTop = scrim.querySelector(".sheet") ? scrim.querySelector(".sheet").scrollTop : 0;
+      scrim.innerHTML = `
+        <div class="sheet glass">
+          <div class="sheet-head"><h2>People</h2><button class="icon-btn" data-action="p-close" aria-label="Close">${ICON.close}</button></div>
+          <p class="lead">Add everyone who uses the board. Their names appear when someone leaves a note.</p>
+          <section class="card-inset">
+            <h3>${ui.editId ? "Edit person" : "Add a person"}</h3>
+            <div class="pform-top">
+              ${this._avatar({ id: "preview", name: ui.name || "?", emoji: ui.emoji, hue: ui.hue }, "xl")}
+              <input id="gm-p-name" class="field" maxlength="40" placeholder="Name, for example Maya" value="${esc(ui.name)}" autocomplete="off">
+            </div>
+            <div class="label">Picture</div>
+            <div class="emoji-grid">${MEMBER_EMOJI.map((e) => `<button class="emoji ${e === ui.emoji ? "on" : ""}" data-action="p-emoji" data-emoji="${e}" aria-label="Picture ${e}">${e}</button>`).join("")}</div>
+            <div class="label">Colour</div>
+            <div class="hues">${HUES.map((h) => `<button class="hue ${h === ui.hue ? "on" : ""}" data-action="p-hue" data-hue="${h}" style="--h:${h}" aria-label="Colour"></button>`).join("")}</div>
+            <div class="label">Send a phone notification when they get a note <span class="opt">(optional)</span></div>
+            <select id="gm-p-notify" class="field">
+              <option value="">Don't notify</option>
+              ${services.map((s) => `<option value="${esc(s.value)}" ${s.value === ui.notify ? "selected" : ""}>${esc(s.label)}</option>`).join("")}
+            </select>
+            ${services.length ? "" : `<p class="muted">Install the Home Assistant app on a phone to enable notifications.</p>`}
+            <div class="pform-foot">
+              <span class="err">${esc(ui.error)}</span>
+              ${ui.editId ? `<button class="ghost-btn" data-action="p-cancel">Cancel</button>` : ""}
+              <button class="primary" data-action="p-save">${ui.editId ? "Save changes" : `${ICON.plus}<span>Add person</span>`}</button>
+            </div>
+          </section>
+          <section class="people-sec">
+            <h3>On the board</h3>
+            ${
+              members.length
+                ? members
+                    .map(
+                      (m) => `<div class="person-row">${this._avatar({ id: m.id, name: m.name, emoji: m.emoji, hue: m.hue })}
+                  <div class="pinfo"><b>${esc(m.name)}</b><small>${m.notify && m.notify.length ? `Notifies ${esc(label(m.notify[0]))}` : "No notifications"}</small></div>
+                  <button class="ghost-btn" data-action="p-edit" data-id="${esc(m.id)}">${ICON.edit}<span>Edit</span></button>
+                  <button class="ghost-btn danger" data-action="p-remove" data-id="${esc(m.id)}">${ui.confirm === m.id ? "Tap again to remove" : "Remove"}</button></div>`
+                    )
+                    .join("")
+                : `<p class="muted">No one yet. Add the first person above.</p>`
+            }
+          </section>
+          ${
+            ha.length
+              ? `<section class="people-sec">
+            <div class="sec-head"><h3>Home Assistant users</h3><button class="switch ${haOn ? "on" : ""}" data-action="p-ha" role="switch" aria-checked="${haOn}" aria-label="Show Home Assistant users"></button></div>
+            <p class="muted">${haOn ? "These people from Home Assistant are also on the board." : "Hidden. Turn on to also show people from Home Assistant."}</p>
+            ${haOn ? ha.map((p) => `<div class="person-row">${this._avatar(p)}<div class="pinfo"><b>${esc(p.name)}</b><small>From Home Assistant</small></div></div>`).join("") : ""}
+          </section>`
+              : ""
+          }
+        </div>`;
+      const sheet = scrim.querySelector(".sheet");
+      if (sheet) sheet.scrollTop = scrollTop;
+    }
+
+    async _savePerson() {
+      const ui = this._peopleUi;
+      if (!ui) return;
+      const name = (ui.name || "").trim();
+      if (!name) {
+        ui.error = "Please type a name.";
+        return this._renderPeople();
+      }
+      const payload = { type: "glass_messages/member/save", name, emoji: ui.emoji, hue: ui.hue, notify: ui.notify ? [ui.notify] : [] };
+      if (ui.editId) payload.member_id = ui.editId;
+      try {
+        const member = await this._hass.callWS(payload);
+        this._members = [...this._members.filter((m) => m.id !== member.id), member].sort((a, b) => a.name.localeCompare(b.name));
+        if (!this._peopleUi) return;
+        this._peopleUi = this._blankPerson();
+        this._renderPeople();
+        this._renderFilters();
+        this._renderBoard();
+        const input = this.shadowRoot.querySelector("#gm-p-name");
+        if (input) input.focus();
+      } catch (err) {
+        ui.error = (err && err.message) || String(err);
+        this._renderPeople();
+      }
+    }
+
+    _onPeopleClick(el, a) {
+      const ui = this._peopleUi;
+      if (!ui) return;
+      switch (a) {
+        case "p-close":
+          return this._closePeople();
+        case "p-emoji":
+          ui.emoji = el.dataset.emoji;
+          break;
+        case "p-hue":
+          ui.hue = Number(el.dataset.hue);
+          break;
+        case "p-save":
+          return this._savePerson();
+        case "p-cancel":
+          this._peopleUi = this._blankPerson();
+          break;
+        case "p-edit": {
+          const m = this._members.find((x) => x.id === el.dataset.id);
+          if (m) this._peopleUi = { editId: m.id, name: m.name, emoji: m.emoji, hue: m.hue, notify: (m.notify || [])[0] || "", confirm: null, error: "" };
+          const sheet = this.shadowRoot.querySelector(".people-scrim .sheet");
+          if (sheet) sheet.scrollTo({ top: 0, behavior: "smooth" });
+          break;
+        }
+        case "p-remove":
+          if (ui.confirm === el.dataset.id) {
+            this._call({ type: "glass_messages/member/remove", member_id: el.dataset.id });
+            ui.confirm = null;
+            if (ui.editId === el.dataset.id) this._peopleUi = this._blankPerson();
+          } else {
+            ui.confirm = el.dataset.id;
+          }
+          break;
+        case "p-ha":
+          this._call({ type: "glass_messages/settings", include_ha_people: this._settings.include_ha_people === false });
+          break;
+      }
+      this._renderPeople();
+    }
+
     _expiryDate(k) {
       const now = new Date();
       switch (k) {
@@ -877,9 +1286,12 @@
     async _send() {
       const c = this._compose;
       if (!c || c.sending) return;
-      const text = this.shadowRoot.querySelector(".sheet textarea").value.trim();
+      const text = this.shadowRoot.querySelector(".compose-scrim textarea").value.trim();
       const payload = { type: "glass_messages/post", text, to: c.to, tint: c.tint, pinned: c.pinned, notify: true };
-      if (c.from) payload.from = c.from;
+      if (c.from) {
+        payload.from = c.from;
+        storage.set(LAST_SENDER_KEY, c.from);
+      }
       const exp = c.pinned ? null : this._expiryDate(c.expiry);
       if (exp) payload.expires_at = exp.toISOString();
       if (c.strokes.length) payload.drawing = { ar: Number(this._padAspect.toFixed(4)), strokes: c.strokes };
@@ -977,7 +1389,7 @@
       if (this._rec) return this._stopMic();
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
-      const sheet = this.shadowRoot.querySelector(".sheet");
+      const sheet = this.shadowRoot.querySelector(".compose-scrim .sheet");
       const ta = sheet.querySelector("textarea");
       const base = ta.value ? ta.value.replace(/\s*$/, " ") : "";
       const rec = new SR();

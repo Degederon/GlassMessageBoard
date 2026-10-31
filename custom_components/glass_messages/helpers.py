@@ -12,7 +12,9 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    DOMAIN,
     EVERYONE,
+    MEMBER_PREFIX,
     MAX_POINTS_PER_STROKE,
     MAX_STROKES,
     MAX_TOTAL_POINTS,
@@ -34,8 +36,12 @@ def person_for_user(hass: HomeAssistant, user_id: str | None) -> str | None:
 
 @callback
 def display_name(hass: HomeAssistant, entity_id: str | None, fallback: str | None = None) -> str:
-    """Friendly name for a person entity, falling back gracefully."""
-    if entity_id and (state := hass.states.get(entity_id)):
+    """Friendly name for a person entity or board member, falling back gracefully."""
+    if entity_id and entity_id.startswith(MEMBER_PREFIX):
+        board = hass.data.get(DOMAIN)
+        if board is not None and (member := board.get_member(entity_id)):
+            return member["name"]
+    elif entity_id and (state := hass.states.get(entity_id)):
         return state.name
     return fallback or "Home"
 
@@ -48,20 +54,27 @@ def users_for_person(hass: HomeAssistant, entity_id: str | None) -> str | None:
     return None
 
 
+def _is_participant(value: str) -> bool:
+    for prefix in ("person.", MEMBER_PREFIX):
+        if value.startswith(prefix) and len(value) > len(prefix):
+            return True
+    return False
+
+
 def recipient(value: Any) -> str:
-    """Validate a recipient: 'everyone' or a person entity id."""
+    """Validate a recipient: 'everyone', a person entity or a board member."""
     value = str(value or EVERYONE).strip().lower()
-    if value == EVERYONE or (value.startswith("person.") and len(value) > 7):
+    if value == EVERYONE or _is_participant(value):
         return value
-    raise vol.Invalid("recipient must be 'everyone' or a person entity")
+    raise vol.Invalid("recipient must be 'everyone', a person entity or a board member")
 
 
 def person_entity(value: Any) -> str:
-    """Validate a person entity id."""
+    """Validate a sender: a person entity or a board member."""
     value = str(value).strip().lower()
-    if value.startswith("person.") and len(value) > 7:
+    if _is_participant(value):
         return value
-    raise vol.Invalid("must be a person entity")
+    raise vol.Invalid("must be a person entity or a board member")
 
 
 def _clamp(value: Any, low: float, high: float) -> float:
