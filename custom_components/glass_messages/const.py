@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "glass_messages"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 STORAGE_KEY = f"{DOMAIN}.messages"
 STORAGE_VERSION = 1
@@ -27,6 +27,22 @@ MAX_POINTS_PER_STROKE = 1500
 MAX_TOTAL_POINTS = 12000
 
 TINTS = ["clear", "rose", "amber", "mint", "sky", "violet"]
+
+# Background colour themes. The card holds the actual colours for each preset.
+BACKGROUND_PRESETS = [
+    "aurora",
+    "sunset",
+    "ocean",
+    "forest",
+    "lavender",
+    "ember",
+    "graphite",
+    "midnight",
+    "halloween",
+    "festive",
+]
+BACKGROUND_CUSTOM = "custom"
+DEFAULT_BACKGROUND = {"preset": "aurora", "colors": []}
 
 # Options
 CONF_NOTIFY_EVERYONE = "notify_everyone"

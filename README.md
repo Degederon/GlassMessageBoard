@@ -6,7 +6,7 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.1.0-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.0-6E56CF.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![Glass Message Board on a wall tablet](docs/images/board.png)
@@ -40,6 +40,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Write, dictate or draw** | Touch-optimized text input with quick emoji, browser-based voice dictation, and a handwriting pad with six ink colors, three pen sizes and undo. |
 | **Pinning and expiry** | Notes can last 1 hour, until tonight, 1 day, 1 week, or indefinitely. Pinned notes never expire and always appear first. |
 | **Reactions and replies** | Open any note to react, reply to the sender, pin it or delete it. |
+| **Background themes** | Ten colour presets, including seasonal ones, plus your own three-colour mix. Changes apply to every screen at once. |
 | **Ambient mode** | After a configurable idle period, the board shows a large clock and a rotating spotlight of notes, prioritizing those for the current user. |
 | **Automation support** | Actions, a new-message event and per-person sensors let automations post notes and respond to them. |
 | **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
@@ -184,6 +185,17 @@ If someone isn't on the board yet, select **Add name** in step 2 or 3 and type t
   - Select **Pin** or **Unpin**.
   - Select **Delete**, then select it again to confirm.
 
+### Part 8: Change the background (optional)
+
+1. Select the **palette** button in the header, next to **People**.
+2. Select a theme. The board changes straight away on every screen. **Aurora** is the default.
+3. To use your own colours, change **Colour 1**, **Colour 2** and **Colour 3** under **Your own colours**. The board previews each change. Select **Use my colours** to keep them.
+4. Close the window with **X**.
+
+<p align="center"><img src="docs/images/backgrounds.png" alt="The background picker" width="70%"></p>
+
+Available presets: Aurora, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive.
+
 ### What happens automatically
 
 - **Expiry:** notes disappear at the time chosen when they were written. Pinned notes stay.
@@ -244,6 +256,7 @@ For Home Assistant `person` entities, and for extra settings, go to **Settings â
 | `glass_messages.pin` | Pins or unpins a note. | `id`, `pinned` |
 | `glass_messages.react` | Toggles an emoji reaction. | `id`, `emoji`, `from` |
 | `glass_messages.clear` | Removes all notes. Returns the number removed. | `include_pinned` |
+| `glass_messages.set_background` | Changes the board's colour theme on every screen. | `preset`, `colors` |
 
 ### `glass_messages.post` fields
 
@@ -324,11 +337,28 @@ actions:
       tint: amber
 ```
 
+### Switch to a seasonal background
+
+```yaml
+triggers:
+  - trigger: time
+    at: "00:00:00"
+conditions:
+  - condition: template
+    value_template: "{{ now().month == 10 and now().day == 31 }}"
+actions:
+  - action: glass_messages.set_background
+    data:
+      preset: halloween
+```
+
+To use your own colours from an automation, set `preset: custom` and `colors: "#ff7a45, #ff3d77, #ffc15e"`. To go back to the default, set `preset: aurora`.
+
 ## Permissions and data
 
 | Action | Allowed for |
 |---|---|
-| Post, react, pin, manage people | All users |
+| Post, react, pin, manage people, change the background | All users |
 | Delete | Administrators, the sender and the recipient |
 
 - Notes are stored locally in `.storage/glass_messages.messages`. No data leaves your Home Assistant instance except through the notification services you configure.
@@ -348,7 +378,7 @@ Custom frontends can use the following commands:
 | `glass_messages/react` | Toggles a reaction. |
 | `glass_messages/member/save` | Adds or updates a board member. |
 | `glass_messages/member/remove` | Removes a board member. |
-| `glass_messages/settings` | Shows or hides Home Assistant users on the board. |
+| `glass_messages/settings` | Shows or hides Home Assistant users, and changes the background. |
 
 ## Troubleshooting
 

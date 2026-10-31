@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.0";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
@@ -31,6 +31,27 @@
   const AVATAR_HUES = [200, 280, 330, 20, 150, 50, 240, 100];
   const MEMBER_EMOJI = ["🙂", "😎", "🥰", "🤓", "🦊", "🐱", "🐶", "🐼", "🦄", "🐸", "🌻", "🌙", "⭐", "🚀", "🎸", "⚽", "🍩", "👵", "👴", "👶"];
   const HUES = [210, 260, 300, 340, 15, 40, 140, 175];
+  // Background themes: base colour plus three glow colours. Aurora is the default.
+  const BACKGROUNDS = {
+    aurora: { name: "Aurora", base: "#070b1c", colors: ["#5b6cff", "#ff5fa2", "#22d3c5"] },
+    sunset: { name: "Sunset", base: "#1a0a10", colors: ["#ff7a45", "#ff3d77", "#ffc15e"] },
+    ocean: { name: "Ocean", base: "#021321", colors: ["#1e88e5", "#00bcd4", "#5c6bc0"] },
+    forest: { name: "Forest", base: "#06130c", colors: ["#43a047", "#9ccc65", "#00897b"] },
+    lavender: { name: "Lavender", base: "#110c1d", colors: ["#9575cd", "#f48fb1", "#7986cb"] },
+    ember: { name: "Ember", base: "#150806", colors: ["#ff5722", "#ffa000", "#d81b60"] },
+    graphite: { name: "Graphite", base: "#0b0d10", colors: ["#78909c", "#b0bec5", "#455a64"] },
+    midnight: { name: "Midnight", base: "#04050b", colors: ["#283593", "#1565c0", "#4a148c"] },
+    halloween: { name: "Halloween", base: "#0c0610", colors: ["#ff6d00", "#8e24aa", "#43a047"] },
+    festive: { name: "Festive", base: "#0a1210", colors: ["#e53935", "#43a047", "#fdd835"] },
+  };
+  const DEFAULT_BACKGROUND = "aurora";
+  const darkBase = (hex) => {
+    const n = parseInt(String(hex).slice(1), 16);
+    if (Number.isNaN(n)) return BACKGROUNDS.aurora.base;
+    const mix = (c) => Math.round(c * 0.1 + 6);
+    const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(mix);
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+  };
   const LAST_SENDER_KEY = "glass-message-board:last-sender";
   const storage = {
     get(k) {
@@ -69,6 +90,8 @@
     reply: '<svg viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg>',
     plus: '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
     people: '<svg viewBox="0 0 24 24"><path d="M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1a4.2 4.2 0 0 1 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>',
+    palette: '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18 1.5 1.5 0 0 0 1.1-2.5 1.5 1.5 0 0 1 1.1-2.5H16a5 5 0 0 0 5-5c0-4.4-4-8-9-8zm-5.5 9A1.5 1.5 0 1 1 8 10.5 1.5 1.5 0 0 1 6.5 12zm3-4A1.5 1.5 0 1 1 11 6.5 1.5 1.5 0 0 1 9.5 8zm5 0A1.5 1.5 0 1 1 16 6.5 1.5 1.5 0 0 1 14.5 8zm3 4a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>',
     edit: '<svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.8l11-11.1-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>',
     chevron: '<svg viewBox="0 0 24 24"><path d="M8.6 16.6 13.2 12 8.6 7.4 10 6l6 6-6 6z"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>',
@@ -81,14 +104,14 @@
   button { font:inherit; color:inherit; cursor:pointer; border:0; background:none; -webkit-tap-highlight-color:transparent; }
   svg { width:1em; height:1em; fill:currentColor; flex:none; }
   .root { position:relative; overflow:hidden; border-radius: var(--ha-card-border-radius, 18px);
-    color: var(--gm-text); background:#070b1c; min-height: var(--gm-height); height: var(--gm-height); isolation:isolate; }
+    color: var(--gm-text); background: var(--gm-base, #070b1c); transition: background-color 1s ease; min-height: var(--gm-height); height: var(--gm-height); isolation:isolate; }
 
   /* aurora */
   .aurora { position:absolute; inset:-20%; z-index:-1; filter: blur(70px) saturate(140%); }
   .aurora i { position:absolute; border-radius:50%; opacity:.75; mix-blend-mode:screen; animation: drift 28s ease-in-out infinite alternate; }
-  .aurora .b1 { width:60%; height:60%; left:5%; top:5%; background: radial-gradient(circle, #5b6cff 0%, transparent 65%); }
-  .aurora .b2 { width:55%; height:65%; right:0; top:20%; background: radial-gradient(circle, #ff5fa2 0%, transparent 65%); animation-duration: 34s; animation-delay:-8s; }
-  .aurora .b3 { width:70%; height:55%; left:20%; bottom:-5%; background: radial-gradient(circle, #22d3c5 0%, transparent 65%); animation-duration: 40s; animation-delay:-16s; }
+  .aurora .b1 { width:60%; height:60%; left:5%; top:5%; background: radial-gradient(circle, var(--gm-c1, #5b6cff) 0%, transparent 65%); }
+  .aurora .b2 { width:55%; height:65%; right:0; top:20%; background: radial-gradient(circle, var(--gm-c2, #ff5fa2) 0%, transparent 65%); animation-duration: 34s; animation-delay:-8s; }
+  .aurora .b3 { width:70%; height:55%; left:20%; bottom:-5%; background: radial-gradient(circle, var(--gm-c3, #22d3c5) 0%, transparent 65%); animation-duration: 40s; animation-delay:-16s; }
   .bgimg { position:absolute; inset:0; z-index:-1; background-size:cover; background-position:center; opacity:.85; }
   .grain { position:absolute; inset:0; z-index:-1; opacity:.06; pointer-events:none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
@@ -200,7 +223,8 @@
   .tint-dot.on { border-color:#fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
   .sheet-foot { display:flex; align-items:center; gap:12px; margin-top: 18px; }
   .compose-scrim .sheet-foot { position: sticky; bottom: -24px; margin: 12px -26px -24px; padding: 14px 26px 20px;
-    background: linear-gradient(to top, rgba(14,18,44,.92) 55%, rgba(14,18,44,0)); border-radius: 0 0 var(--gm-radius) var(--gm-radius); }
+    background: linear-gradient(to top, rgba(14,18,44,.92) 55%, rgba(14,18,44,0));
+    background: linear-gradient(to top, color-mix(in srgb, var(--gm-base, #070b1c) 88%, transparent) 55%, transparent); border-radius: 0 0 var(--gm-radius) var(--gm-radius); }
   .err { color: #ffb3c4; font-size:14px; flex:1; }
   .primary { display:inline-flex; align-items:center; gap:10px; padding: 14px 28px; border-radius:999px; font-weight:600; font-size:16px;
     background: linear-gradient(135deg, #fff, #dfe5ff); color:#121735; box-shadow: 0 10px 30px -8px rgba(120,140,255,.8); }
@@ -295,6 +319,27 @@
   .sec-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .sec-head h3 { margin:0; }
 
+  /* background picker */
+  .icon-only { width:44px; height:44px; padding:0; justify-content:center; }
+  .bg-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap:12px; }
+  .bg-opt { display:flex; flex-direction:column; gap:8px; padding:8px 8px 10px; border-radius:20px; text-align:left; font-size:14px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); transition: border-color .2s, background .2s; }
+  .bg-opt.on { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.7); }
+  .bg-opt .bg-name { display:flex; align-items:center; justify-content:space-between; gap:6px; padding: 0 4px; }
+  .bg-opt .bg-name small { color: var(--gm-dim); font-size: 11px; }
+  .bg-opt svg { font-size:18px; }
+  .bg-prev { position:relative; height:72px; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.12);
+    background: radial-gradient(circle at 22% 30%, var(--p1) 0, transparent 58%), radial-gradient(circle at 82% 40%, var(--p2) 0, transparent 58%),
+      radial-gradient(circle at 50% 100%, var(--p3) 0, transparent 62%), var(--pb); }
+  .bg-prev i { position:absolute; left:12px; right:30px; top:18px; height:12px; border-radius:6px; background: rgba(255,255,255,.28); }
+  .bg-prev i + i { top:38px; right:52px; background: rgba(255,255,255,.18); }
+  .custom-row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .color-field { display:flex; flex-direction:column; gap:6px; font-size:13px; color: var(--gm-dim); }
+  .color-field input { width:64px; height:48px; padding:3px; border-radius:14px; border:1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.2); cursor:pointer; }
+  .color-field input::-webkit-color-swatch-wrapper { padding:0; }
+  .color-field input::-webkit-color-swatch { border:none; border-radius:10px; }
+  .color-field input::-moz-color-swatch { border:none; border-radius:10px; }
+
   @media (max-width: 600px) { .title { display:none; } header { padding: 12px 14px; } .row > label { width:100%; } .new span, .people-btn span { display:none; }
     .sheet { padding: 18px 18px 20px; } .compose-scrim .sheet-foot { margin: 12px -18px -20px; padding: 12px 18px 16px; bottom: -20px; }
     .avatar.xl { width:48px; height:48px; font-size:24px; } .pform-top { gap:10px; } .card-inset { padding: 14px; } }
@@ -313,8 +358,9 @@
       this._spotIndex = 0;
       this._compose = null;
       this._members = [];
-      this._settings = { include_ha_people: true };
+      this._settings = { include_ha_people: true, background: { preset: DEFAULT_BACKGROUND, colors: [] } };
       this._peopleUi = null;
+      this._lookUi = null;
     }
 
     static getStubConfig() {
@@ -438,6 +484,8 @@
       this._renderBoard();
       if (this._ambient) this._renderSpot(true);
       if (ev.action === "snapshot" || ev.action === "people") {
+        this._applyBackground();
+        if (this._lookUi) this._renderLook();
         if (this._compose) this._syncCompose();
         if (this._peopleUi) this._renderPeople();
       }
@@ -524,6 +572,7 @@
               <div class="clock"><div class="time"></div><div class="date"></div></div>
               <div class="title"></div>
               <nav class="filters"></nav>
+              <button class="ghost-btn icon-only" data-action="look" aria-label="Background colours" title="Background colours">${ICON.palette}</button>
               <button class="ghost-btn people-btn" data-action="people" aria-label="People">${ICON.people}<span>People</span></button>
               <button class="new" data-action="compose">${ICON.plus}<span>Leave a note</span></button>
             </header>
@@ -537,6 +586,7 @@
           <div class="scrim compose-scrim" hidden></div>
           <div class="scrim detail-scrim" hidden></div>
           <div class="scrim people-scrim" hidden></div>
+          <div class="scrim look-scrim" hidden></div>
         </div>`;
       const root = this.shadowRoot.querySelector(".root");
       root.addEventListener("click", (e) => this._onClick(e));
@@ -724,6 +774,9 @@
         case "people":
           this._openPeople();
           break;
+        case "look":
+          this._openLook();
+          break;
         case "open":
           this._openDetail(id);
           break;
@@ -754,6 +807,7 @@
         }
         default:
           if (a.startsWith("p-")) this._onPeopleClick(el, a);
+          else if (a.startsWith("l-")) this._onLookClick(el, a);
           else if (this._compose) this._onComposeClick(el, a);
       }
     }
@@ -1092,6 +1146,120 @@
           return this._send();
       }
       this._syncCompose();
+    }
+
+    // ----------------------------------------------------------- background
+    _resolveBackground(choice) {
+      const bg = choice || (this._settings && this._settings.background) || {};
+      if (bg.preset === "custom" && Array.isArray(bg.colors) && bg.colors.length === 3) {
+        return { base: darkBase(bg.colors[0]), colors: bg.colors };
+      }
+      return BACKGROUNDS[bg.preset] || BACKGROUNDS[DEFAULT_BACKGROUND];
+    }
+
+    _applyBackground(choice) {
+      if (!this._built) return;
+      const t = this._resolveBackground(choice);
+      const root = this.shadowRoot.querySelector(".root");
+      root.style.setProperty("--gm-base", t.base);
+      t.colors.forEach((c, i) => root.style.setProperty(`--gm-c${i + 1}`, c));
+    }
+
+    _openLook() {
+      const bg = (this._settings && this._settings.background) || { preset: DEFAULT_BACKGROUND, colors: [] };
+      const start = bg.preset === "custom" && bg.colors && bg.colors.length === 3 ? bg.colors : this._resolveBackground().colors;
+      this._lookUi = { custom: [...start], error: "" };
+      const scrim = this.shadowRoot.querySelector(".look-scrim");
+      scrim.hidden = false;
+      scrim.onclick = (e) => {
+        if (e.target === scrim) this._closeLook();
+      };
+      scrim.oninput = (e) => {
+        const i = e.target.dataset && e.target.dataset.ci;
+        if (i === undefined || !this._lookUi) return;
+        this._lookUi.custom[Number(i)] = e.target.value;
+        this._applyBackground({ preset: "custom", colors: this._lookUi.custom });
+        const prev = scrim.querySelector(".custom-prev");
+        if (prev) prev.setAttribute("style", this._prevStyle(this._resolveBackground({ preset: "custom", colors: this._lookUi.custom })));
+      };
+      this._renderLook();
+    }
+
+    _closeLook() {
+      this._lookUi = null;
+      const s = this.shadowRoot.querySelector(".look-scrim");
+      s.hidden = true;
+      s.innerHTML = "";
+      this._applyBackground();
+      this._resetIdle();
+    }
+
+    _prevStyle(t) {
+      return `--pb:${t.base};--p1:${t.colors[0]};--p2:${t.colors[1]};--p3:${t.colors[2]}`;
+    }
+
+    _renderLook() {
+      const ui = this._lookUi;
+      const scrim = this.shadowRoot.querySelector(".look-scrim");
+      if (!ui || !scrim) return;
+      const current = ((this._settings && this._settings.background) || {}).preset || DEFAULT_BACKGROUND;
+      const scrollTop = scrim.querySelector(".sheet") ? scrim.querySelector(".sheet").scrollTop : 0;
+      const option = (key, t) => `
+        <button class="bg-opt ${current === key ? "on" : ""}" data-action="l-preset" data-preset="${key}" aria-pressed="${current === key}">
+          <span class="bg-prev" style="${this._prevStyle(t)}"><i></i><i></i></span>
+          <span class="bg-name"><span>${esc(t.name)}${key === DEFAULT_BACKGROUND ? " <small>Default</small>" : ""}</span>${current === key ? ICON.check : ""}</span>
+        </button>`;
+      scrim.innerHTML = `
+        <div class="sheet glass">
+          <div class="sheet-head"><h2>Background</h2><button class="icon-btn" data-action="l-close" aria-label="Close">${ICON.close}</button></div>
+          <p class="lead">Pick a colour theme for the board. It changes on every screen showing this board.</p>
+          <div class="bg-grid">${Object.entries(BACKGROUNDS).map(([k, t]) => option(k, t)).join("")}</div>
+          <section class="people-sec card-inset">
+            <h3>Your own colours</h3>
+            <div class="custom-row">
+              ${ui.custom
+                .map((c, i) => `<label class="color-field">Colour ${i + 1}<input id="gm-l-c${i}" type="color" value="${esc(c)}" data-ci="${i}"></label>`)
+                .join("")}
+              <span class="bg-prev custom-prev" style="${this._prevStyle(this._resolveBackground({ preset: "custom", colors: ui.custom }))};flex:1;min-width:120px;height:48px"><i></i></span>
+            </div>
+            <p class="muted">Changing a colour previews it right away. Select <b>Use my colours</b> to keep it.</p>
+            <div class="pform-foot">
+              <span class="err">${esc(ui.error)}</span>
+              ${current === "custom" ? `<span class="muted">${ICON.check} In use</span>` : ""}
+              <button class="primary" data-action="l-custom">Use my colours</button>
+            </div>
+          </section>
+        </div>`;
+      const sheet = scrim.querySelector(".sheet");
+      if (sheet) sheet.scrollTop = scrollTop;
+    }
+
+    async _saveBackground(background) {
+      const prev = this._settings.background;
+      this._settings = { ...this._settings, background };
+      this._applyBackground();
+      try {
+        await this._hass.callWS({ type: "glass_messages/settings", background });
+      } catch (err) {
+        this._settings = { ...this._settings, background: prev };
+        this._applyBackground();
+        if (this._lookUi) this._lookUi.error = (err && err.message) || String(err);
+      }
+      this._renderLook();
+    }
+
+    _onLookClick(el, a) {
+      if (!this._lookUi) return;
+      switch (a) {
+        case "l-close":
+          return this._closeLook();
+        case "l-preset":
+          this._lookUi.error = "";
+          return this._saveBackground({ preset: el.dataset.preset, colors: [] });
+        case "l-custom":
+          this._lookUi.error = "";
+          return this._saveBackground({ preset: "custom", colors: [...this._lookUi.custom] });
+      }
     }
 
     // --------------------------------------------------------------- people

@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-10-31
+
+### Added
+
+- **Background themes:** a palette button opens a picker with ten presets (Aurora, Sunset, Ocean, Forest, Lavender, Ember, Graphite, Midnight, Halloween and Festive) and a custom three-colour option with live preview.
+- The chosen background is saved centrally, so every screen showing the board changes together.
+- New action `glass_messages.set_background` for switching themes from automations.
+
+### Changed
+
+- Aurora remains the default background; existing boards look the same until a new theme is chosen.
+- Links in `manifest.json`, the card and the README now point to `https://github.com/Degederon/GlassMessageBoard`.
+
 ## [1.1.0] - 2026-10-31
 
 ### Added
