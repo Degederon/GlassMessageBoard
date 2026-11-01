@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.4] - 2026-11-01
+
+### Added
+
+- An app icon: a frosted-glass speech bubble with a note and a heart. It appears next to Glass Message Board in the Marketplace and on the Devices & services page (Home Assistant 2026.3 or later).
+
 ## [1.2.3] - 2026-10-31
 
 ### Fixed
