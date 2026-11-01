@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Glass Message Board",
+        "description": "Ajoute un tableau de messages pour la maison. La carte en verre se charge automatiquement : ajoutez-la à un tableau de bord sous le nom « Glass Message Board »."
+      }
+    },
+    "abort": {
+      "already_configured": "Le tableau de messages est déjà configuré.",
+      "single_instance_allowed": "Le tableau de messages est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Notifications et valeurs par défaut",
+        "description": "Pour chaque personne, choisissez le ou les services de notification qui la préviennent quand une note lui est laissée (par exemple notify.mobile_app_pixel). Les notes pour « Tout le monde » préviennent toutes les personnes ci-dessous sauf l'expéditeur.",
+        "data": {
+          "notify_everyone": "Services supplémentaires pour les notes à tout le monde",
+          "notify_url": "Ouvrir ce chemin de tableau de bord quand on touche une notification (par ex. /lovelace/notes)",
+          "default_expiry_hours": "Durée de vie par défaut d'une note (0 = garder)"
+        }
+      }
+    }
+  },
+  "services": {
+    "post": {
+      "name": "Laisser une note",
+      "description": "Publie un message sur le tableau en verre.",
+      "fields": {
+        "message": {
+          "name": "Message"
+        },
+        "to": {
+          "name": "À",
+          "description": "Une entité personne, l'identifiant d'un membre du tableau (member.xxxx) ou \"everyone\"."
+        },
+        "from": {
+          "name": "De",
+          "description": "Entité personne ou identifiant de membre de l'expéditeur. Par défaut, l'utilisateur qui lance l'action."
+        },
+        "sender_name": {
+          "name": "Nom de l'expéditeur",
+          "description": "Nom affiché quand ce n'est pas une personne qui envoie (par ex. \"Maison\" ou \"Lave-linge\")."
+        },
+        "expires_in": {
+          "name": "Expire dans",
+          "description": "Minutes avant que la note disparaisse."
+        },
+        "expires_at": {
+          "name": "Expire à"
+        },
+        "pinned": {
+          "name": "Épinglée"
+        },
+        "tint": {
+          "name": "Teinte"
+        },
+        "notify": {
+          "name": "Envoyer des notifications"
+        }
+      }
+    },
+    "delete": {
+      "name": "Supprimer une note",
+      "fields": {
+        "id": {
+          "name": "Identifiant du message"
+        }
+      }
+    },
+    "pin": {
+      "name": "Épingler ou désépingler une note",
+      "fields": {
+        "id": {
+          "name": "Identifiant du message"
+        },
+        "pinned": {
+          "name": "Épinglée"
+        }
+      }
+    },
+    "react": {
+      "name": "Réagir à une note",
+      "fields": {
+        "id": {
+          "name": "Identifiant du message"
+        },
+        "emoji": {
+          "name": "Emoji"
+        },
+        "from": {
+          "name": "De"
+        }
+      }
+    },
+    "clear": {
+      "name": "Vider le tableau",
+      "description": "Retire toutes les notes (les notes épinglées sont gardées sauf si elles sont incluses).",
+      "fields": {
+        "include_pinned": {
+          "name": "Inclure les épinglées"
+        }
+      }
+    },
+    "set_background": {
+      "name": "Changer le fond",
+      "description": "Change le thème de couleur du tableau sur chaque écran. Utilisez un thème prédéfini, ou \"custom\" avec trois couleurs.",
+      "fields": {
+        "preset": {
+          "name": "Thème"
+        },
+        "colors": {
+          "name": "Couleurs personnalisées",
+          "description": "Uniquement pour \"custom\". Trois couleurs comme \"#ff7a45, #ff3d77, #ffc15e\"."
+        }
+      }
+    }
+  }
+}

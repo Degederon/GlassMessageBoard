@@ -12,6 +12,20 @@ from .const import CONF_NOTIFY_EVERYONE, CONF_NOTIFY_URL, DOMAIN, EVERYONE, MEMB
 
 _LOGGER = logging.getLogger(__name__)
 
+# The notification's own words, in Home Assistant's language (English otherwise).
+_HANDWRITTEN = {
+    "en": "✏️ Left you a handwritten note",
+    "de": "✏️ Hat dir eine handschriftliche Notiz hinterlassen",
+    "es": "✏️ Te ha dejado una nota a mano",
+    "fr": "✏️ Vous a laissé une note manuscrite",
+}
+_HOME = {"en": "Home", "de": "Zuhause", "es": "Casa", "fr": "Maison"}
+
+
+def _language(hass: HomeAssistant) -> str:
+    lang = str(getattr(hass.config, "language", None) or "en").split("-")[0].lower()
+    return lang if lang in _HANDWRITTEN else "en"
+
 
 def _as_list(value: Any) -> list[str]:
     if not value:
@@ -53,8 +67,9 @@ async def async_handle_notify(
     if not targets:
         return
 
-    who = message.get("sender_name") or "Home"
-    body = message.get("text") or "✏️ Left you a handwritten note"
+    lang = _language(hass)
+    who = message.get("sender_name") or _HOME[lang]
+    body = message.get("text") or _HANDWRITTEN[lang]
     if len(body) > 180:
         body = body[:179] + "…"
     data: dict[str, Any] = {"tag": f"glass-{message['id']}", "group": "glass_messages"}

@@ -5,7 +5,7 @@
  * No build step, no dependencies. Served automatically by the glass_messages integration.
  */
 (() => {
-  const VERSION = "1.2.4";
+  const VERSION = "1.3.0";
   const TAG = "glass-message-board";
   if (customElements.get(TAG)) return;
 
@@ -28,6 +28,180 @@
     { k: "1w", label: "1 week" },
     { k: "never", label: "Keep" },
   ];
+  // Words: English, German, Spanish and French. The board follows the language
+  // in the viewer's Home Assistant profile; anything missing falls back to English.
+  const STRINGS = {
+    en: {
+      exp_1h: "1 hour", exp_tonight: "Tonight", exp_1d: "1 day", exp_1w: "1 week", exp_keep: "Keep",
+      st_heart: "Heart", st_sun: "Sun", st_star: "Star", st_moon: "Moon", st_flower: "Flower", st_smile: "Smile", st_house: "Home",
+      st_cake: "Cake", st_gift: "Gift", st_coffee: "Coffee", st_rain: "Rain", st_music: "Music", st_balloon: "Balloon",
+      st_pumpkin: "Pumpkin", st_paw: "Paw", st_pizza: "Pizza", st_check: "Done",
+      bg_aurora: "Aurora", bg_black: "Black", bg_sunset: "Sunset", bg_ocean: "Ocean", bg_forest: "Forest", bg_lavender: "Lavender",
+      bg_ember: "Ember", bg_graphite: "Graphite", bg_midnight: "Midnight", bg_halloween: "Halloween", bg_festive: "Festive",
+      tint_clear: "clear", tint_rose: "rose", tint_amber: "amber", tint_mint: "mint", tint_sky: "sky", tint_violet: "violet",
+      cf_title: "Title", cf_height: "Height (CSS, e.g. 100vh or 720px)", cf_ambient: "Ambient mode after (0 = off)",
+      cf_column: "Note width", cf_bgimg: "Background image URL (optional)", cf_clock: "Show clock",
+      default_title: "Messages", stub_title: "Family notes", phone_app: "{name} (phone app)", home: "Home",
+      bg_colours: "Background colours", people: "People", leave_note: "Leave a note", wake: "Tap anywhere to wake",
+      all: "All", for_me: "For me", just_now: "just now", handwritten: "Handwritten note",
+      everyone: "Everyone", everyone_tile: "Everyone", someone: "Someone", pinned: "Pinned", for_you: "For you",
+      almost: "Almost there",
+      setup_html: "Add the <b>Glass Message Board</b> integration in <b>Settings → Devices &amp; services → Add integration</b>, then reload this page.",
+      cant_load: "Couldn't load notes", nothing_here: "Nothing here", welcome: "Welcome to your message board", board_clear: "The board is clear",
+      no_match: "No notes match this filter.", start_people: "Start by adding the people in your home. Then anyone can leave them a note.",
+      first_note: "Leave the first note: a reminder, a doodle, or just a little love.", add_people: "Add people",
+      tap_delete: "Tap again to delete", react: "React {e}", reply: "Reply", unpin: "Unpin", pin: "Pin", delete: "Delete", close: "Close",
+      whos_writing: "Who's writing?", whos_for: "Who's it for?", your_message: "Your message", write: "✍️ Write", draw: "🖍️ Draw",
+      placeholder: "Write something nice…", speak: "Speak your message", insert: "Insert {e}",
+      draw_hint: "Draw with your finger, or tap a sticker below ✨", ink: "Ink {c}", pen_size: "Pen size", undo: "Undo",
+      clear_drawing: "Clear drawing", stickers: "Stickers", add_sticker: "Add {name} sticker",
+      more_options: "More options: colour, how long it stays, pin", colour: "Colour", stays: "Stays", pin_chip: "📌 Pin", send: "Send",
+      type_name: "Type a name", add: "Add", cancel: "Cancel", add_name: "Add name", add_your_name: "Add your name",
+      send_to: "Send to {name}", everyone_lc: "everyone", them: "them",
+      default: "Default", background: "Background", look_lead: "Pick a colour theme for the board. It changes on every screen showing this board.",
+      own_colours: "Your own colours", colour_n: "Colour {n}",
+      look_hint_html: "Changing a colour previews it right away. Select <b>Use my colours</b> to keep it.", in_use: "In use", use_mine: "Use my colours",
+      people_lead: "Add everyone who uses the board. Their names appear when someone leaves a note.", edit_person: "Edit person",
+      add_a_person: "Add a person", name_ph: "Name, for example Maya", picture: "Picture", picture_e: "Picture {e}",
+      notify_label: "Send a phone notification when they get a note", optional: "(optional)", dont_notify: "Don't notify",
+      install_app: "Install the Home Assistant app on a phone to enable notifications.", save_changes: "Save changes", add_person: "Add person",
+      on_board: "On the board", notifies: "Notifies {x}", no_notifications: "No notifications", edit: "Edit", tap_remove: "Tap again to remove",
+      remove: "Remove", no_one: "No one yet. Add the first person above.", ha_users: "Home Assistant users", show_ha: "Show Home Assistant users",
+      ha_on: "These people from Home Assistant are also on the board.", ha_off: "Hidden. Turn on to also show people from Home Assistant.",
+      from_ha: "From Home Assistant", type_name_err: "Please type a name.",
+      mic_blocked: "Microphone blocked. Dictation needs HTTPS and mic permission.", dictation: "Dictation: {e}",
+    },
+    de: {
+      exp_1h: "1 Stunde", exp_tonight: "Heute Abend", exp_1d: "1 Tag", exp_1w: "1 Woche", exp_keep: "Behalten",
+      st_heart: "Herz", st_sun: "Sonne", st_star: "Stern", st_moon: "Mond", st_flower: "Blume", st_smile: "Lächeln", st_house: "Zuhause",
+      st_cake: "Kuchen", st_gift: "Geschenk", st_coffee: "Kaffee", st_rain: "Regen", st_music: "Musik", st_balloon: "Ballon",
+      st_pumpkin: "Kürbis", st_paw: "Pfote", st_pizza: "Pizza", st_check: "Erledigt",
+      bg_aurora: "Polarlicht", bg_black: "Schwarz", bg_sunset: "Sonnenuntergang", bg_ocean: "Ozean", bg_forest: "Wald", bg_lavender: "Lavendel",
+      bg_ember: "Glut", bg_graphite: "Graphit", bg_midnight: "Mitternacht", bg_halloween: "Halloween", bg_festive: "Festlich",
+      tint_clear: "klar", tint_rose: "rosa", tint_amber: "bernstein", tint_mint: "mint", tint_sky: "himmelblau", tint_violet: "violett",
+      cf_title: "Titel", cf_height: "Höhe (CSS, z. B. 100vh oder 720px)", cf_ambient: "Ruhemodus nach (0 = aus)",
+      cf_column: "Notizbreite", cf_bgimg: "Adresse des Hintergrundbilds (optional)", cf_clock: "Uhr anzeigen",
+      default_title: "Nachrichten", stub_title: "Familiennotizen", phone_app: "{name} (Handy-App)", home: "Zuhause",
+      bg_colours: "Hintergrundfarben", people: "Personen", leave_note: "Notiz schreiben", wake: "Zum Aufwecken irgendwo tippen",
+      all: "Alle", for_me: "Für mich", just_now: "gerade eben", handwritten: "Handschriftliche Notiz",
+      everyone: "Alle", everyone_tile: "Alle", someone: "Jemand", pinned: "Angeheftet", for_you: "Für dich",
+      almost: "Fast geschafft",
+      setup_html: "Füge die Integration <b>Glass Message Board</b> unter <b>Einstellungen → Geräte &amp; Dienste → Integration hinzufügen</b> hinzu und lade dann diese Seite neu.",
+      cant_load: "Notizen konnten nicht geladen werden", nothing_here: "Hier ist nichts", welcome: "Willkommen bei deiner Pinnwand", board_clear: "Die Pinnwand ist leer",
+      no_match: "Keine Notizen passen zu diesem Filter.", start_people: "Füge zuerst die Personen in deinem Zuhause hinzu. Dann kann jeder ihnen eine Notiz hinterlassen.",
+      first_note: "Schreib die erste Notiz: eine Erinnerung, eine Kritzelei oder einfach ein bisschen Liebe.", add_people: "Personen hinzufügen",
+      tap_delete: "Zum Löschen erneut tippen", react: "Mit {e} reagieren", reply: "Antworten", unpin: "Lösen", pin: "Anheften", delete: "Löschen", close: "Schließen",
+      whos_writing: "Wer schreibt?", whos_for: "Für wen ist sie?", your_message: "Deine Nachricht", write: "✍️ Schreiben", draw: "🖍️ Zeichnen",
+      placeholder: "Schreib etwas Nettes…", speak: "Nachricht sprechen", insert: "{e} einfügen",
+      draw_hint: "Zeichne mit dem Finger oder tippe unten auf einen Sticker ✨", ink: "Farbe {c}", pen_size: "Stiftgröße", undo: "Rückgängig",
+      clear_drawing: "Zeichnung löschen", stickers: "Sticker", add_sticker: "Sticker {name} hinzufügen",
+      more_options: "Weitere Optionen: Farbe, wie lange sie bleibt, anheften", colour: "Farbe", stays: "Bleibt", pin_chip: "📌 Anheften", send: "Senden",
+      type_name: "Name eingeben", add: "Hinzufügen", cancel: "Abbrechen", add_name: "Neu", add_your_name: "Dein Name",
+      send_to: "An {name} senden", everyone_lc: "alle", them: "diese Person",
+      default: "Standard", background: "Hintergrund", look_lead: "Wähle ein Farbthema für die Pinnwand. Es ändert sich auf jedem Bildschirm, der diese Pinnwand zeigt.",
+      own_colours: "Eigene Farben", colour_n: "Farbe {n}",
+      look_hint_html: "Wenn du eine Farbe änderst, siehst du sie sofort. Wähle <b>Meine Farben verwenden</b>, um sie zu behalten.", in_use: "Aktiv", use_mine: "Meine Farben verwenden",
+      people_lead: "Füge alle hinzu, die die Pinnwand nutzen. Ihre Namen erscheinen, wenn jemand eine Notiz schreibt.", edit_person: "Person bearbeiten",
+      add_a_person: "Person hinzufügen", name_ph: "Name, zum Beispiel Maya", picture: "Bild", picture_e: "Bild {e}",
+      notify_label: "Handy-Benachrichtigung senden, wenn sie eine Notiz bekommen", optional: "(optional)", dont_notify: "Nicht benachrichtigen",
+      install_app: "Installiere die Home Assistant App auf einem Handy, um Benachrichtigungen zu aktivieren.", save_changes: "Änderungen speichern", add_person: "Person hinzufügen",
+      on_board: "Auf der Pinnwand", notifies: "Benachrichtigt {x}", no_notifications: "Keine Benachrichtigungen", edit: "Bearbeiten", tap_remove: "Zum Entfernen erneut tippen",
+      remove: "Entfernen", no_one: "Noch niemand. Füge oben die erste Person hinzu.", ha_users: "Home Assistant Benutzer", show_ha: "Home Assistant Benutzer anzeigen",
+      ha_on: "Diese Personen aus Home Assistant sind auch auf der Pinnwand.", ha_off: "Ausgeblendet. Einschalten, um auch Personen aus Home Assistant zu zeigen.",
+      from_ha: "Aus Home Assistant", type_name_err: "Bitte gib einen Namen ein.",
+      mic_blocked: "Mikrofon blockiert. Diktieren braucht HTTPS und Mikrofonzugriff.", dictation: "Diktieren: {e}",
+    },
+    es: {
+      exp_1h: "1 hora", exp_tonight: "Esta noche", exp_1d: "1 día", exp_1w: "1 semana", exp_keep: "Mantener",
+      st_heart: "Corazón", st_sun: "Sol", st_star: "Estrella", st_moon: "Luna", st_flower: "Flor", st_smile: "Sonrisa", st_house: "Casa",
+      st_cake: "Pastel", st_gift: "Regalo", st_coffee: "Café", st_rain: "Lluvia", st_music: "Música", st_balloon: "Globo",
+      st_pumpkin: "Calabaza", st_paw: "Huella", st_pizza: "Pizza", st_check: "Hecho",
+      bg_aurora: "Aurora", bg_black: "Negro", bg_sunset: "Atardecer", bg_ocean: "Océano", bg_forest: "Bosque", bg_lavender: "Lavanda",
+      bg_ember: "Brasa", bg_graphite: "Grafito", bg_midnight: "Medianoche", bg_halloween: "Halloween", bg_festive: "Festivo",
+      tint_clear: "transparente", tint_rose: "rosa", tint_amber: "ámbar", tint_mint: "menta", tint_sky: "cielo", tint_violet: "violeta",
+      cf_title: "Título", cf_height: "Altura (CSS, p. ej. 100vh o 720px)", cf_ambient: "Modo reposo tras (0 = nunca)",
+      cf_column: "Ancho de las notas", cf_bgimg: "Dirección de la imagen de fondo (opcional)", cf_clock: "Mostrar reloj",
+      default_title: "Mensajes", stub_title: "Notas de la familia", phone_app: "{name} (app del móvil)", home: "Casa",
+      bg_colours: "Colores de fondo", people: "Personas", leave_note: "Dejar una nota", wake: "Toca en cualquier lugar para activar",
+      all: "Todas", for_me: "Para mí", just_now: "ahora mismo", handwritten: "Nota a mano",
+      everyone: "Todos", everyone_tile: "Todos", someone: "Alguien", pinned: "Fijada", for_you: "Para ti",
+      almost: "Ya casi está",
+      setup_html: "Añade la integración <b>Glass Message Board</b> en <b>Ajustes → Dispositivos y servicios → Añadir integración</b> y vuelve a cargar esta página.",
+      cant_load: "No se pudieron cargar las notas", nothing_here: "No hay nada aquí", welcome: "Te damos la bienvenida a tu tablón de mensajes", board_clear: "El tablón está vacío",
+      no_match: "Ninguna nota coincide con este filtro.", start_people: "Empieza añadiendo a las personas de tu casa. Así cualquiera podrá dejarles una nota.",
+      first_note: "Deja la primera nota: un recordatorio, un garabato o simplemente un poco de cariño.", add_people: "Añadir personas",
+      tap_delete: "Toca de nuevo para borrar", react: "Reaccionar con {e}", reply: "Responder", unpin: "Soltar", pin: "Fijar", delete: "Borrar", close: "Cerrar",
+      whos_writing: "¿Quién escribe?", whos_for: "¿Para quién es?", your_message: "Tu mensaje", write: "✍️ Escribir", draw: "🖍️ Dibujar",
+      placeholder: "Escribe algo bonito…", speak: "Dicta tu mensaje", insert: "Insertar {e}",
+      draw_hint: "Dibuja con el dedo o toca una pegatina de abajo ✨", ink: "Tinta {c}", pen_size: "Grosor del lápiz", undo: "Deshacer",
+      clear_drawing: "Borrar el dibujo", stickers: "Pegatinas", add_sticker: "Añadir la pegatina {name}",
+      more_options: "Más opciones: color, cuánto dura, fijar", colour: "Color", stays: "Dura", pin_chip: "📌 Fijar", send: "Enviar",
+      type_name: "Escribe un nombre", add: "Añadir", cancel: "Cancelar", add_name: "Nuevo", add_your_name: "Tu nombre",
+      send_to: "Enviar a {name}", everyone_lc: "todos", them: "esa persona",
+      default: "Predeterminado", background: "Fondo", look_lead: "Elige un tema de color para el tablón. Cambia en todas las pantallas que muestran este tablón.",
+      own_colours: "Tus propios colores", colour_n: "Color {n}",
+      look_hint_html: "Al cambiar un color lo ves al momento. Selecciona <b>Usar mis colores</b> para mantenerlo.", in_use: "En uso", use_mine: "Usar mis colores",
+      people_lead: "Añade a todas las personas que usan el tablón. Sus nombres aparecen cuando alguien deja una nota.", edit_person: "Editar persona",
+      add_a_person: "Añadir una persona", name_ph: "Nombre, por ejemplo Maya", picture: "Imagen", picture_e: "Imagen {e}",
+      notify_label: "Enviar una notificación al móvil cuando reciban una nota", optional: "(opcional)", dont_notify: "No avisar",
+      install_app: "Instala la app de Home Assistant en un móvil para activar las notificaciones.", save_changes: "Guardar cambios", add_person: "Añadir persona",
+      on_board: "En el tablón", notifies: "Avisa a {x}", no_notifications: "Sin notificaciones", edit: "Editar", tap_remove: "Toca de nuevo para quitar",
+      remove: "Quitar", no_one: "Aún no hay nadie. Añade arriba a la primera persona.", ha_users: "Usuarios de Home Assistant", show_ha: "Mostrar usuarios de Home Assistant",
+      ha_on: "Estas personas de Home Assistant también están en el tablón.", ha_off: "Ocultas. Actívalo para mostrar también a las personas de Home Assistant.",
+      from_ha: "De Home Assistant", type_name_err: "Escribe un nombre.",
+      mic_blocked: "Micrófono bloqueado. El dictado necesita HTTPS y permiso para el micrófono.", dictation: "Dictado: {e}",
+    },
+    fr: {
+      exp_1h: "1 heure", exp_tonight: "Ce soir", exp_1d: "1 jour", exp_1w: "1 semaine", exp_keep: "Garder",
+      st_heart: "Cœur", st_sun: "Soleil", st_star: "Étoile", st_moon: "Lune", st_flower: "Fleur", st_smile: "Sourire", st_house: "Maison",
+      st_cake: "Gâteau", st_gift: "Cadeau", st_coffee: "Café", st_rain: "Pluie", st_music: "Musique", st_balloon: "Ballon",
+      st_pumpkin: "Citrouille", st_paw: "Patte", st_pizza: "Pizza", st_check: "Fait",
+      bg_aurora: "Aurore", bg_black: "Noir", bg_sunset: "Coucher de soleil", bg_ocean: "Océan", bg_forest: "Forêt", bg_lavender: "Lavande",
+      bg_ember: "Braise", bg_graphite: "Graphite", bg_midnight: "Minuit", bg_halloween: "Halloween", bg_festive: "Festif",
+      tint_clear: "transparent", tint_rose: "rose", tint_amber: "ambre", tint_mint: "menthe", tint_sky: "ciel", tint_violet: "violet",
+      cf_title: "Titre", cf_height: "Hauteur (CSS, par ex. 100vh ou 720px)", cf_ambient: "Mode veille après (0 = jamais)",
+      cf_column: "Largeur des notes", cf_bgimg: "Adresse de l'image de fond (facultatif)", cf_clock: "Afficher l'horloge",
+      default_title: "Messages", stub_title: "Notes de la famille", phone_app: "{name} (appli mobile)", home: "Maison",
+      bg_colours: "Couleurs de fond", people: "Personnes", leave_note: "Laisser une note", wake: "Touchez n'importe où pour réveiller",
+      all: "Toutes", for_me: "Pour moi", just_now: "à l'instant", handwritten: "Note manuscrite",
+      everyone: "Tout le monde", everyone_tile: "Tous", someone: "Quelqu'un", pinned: "Épinglée", for_you: "Pour vous",
+      almost: "Presque terminé",
+      setup_html: "Ajoutez l'intégration <b>Glass Message Board</b> dans <b>Paramètres → Appareils et services → Ajouter une intégration</b>, puis rechargez cette page.",
+      cant_load: "Impossible de charger les notes", nothing_here: "Rien ici", welcome: "Bienvenue sur votre tableau de messages", board_clear: "Le tableau est vide",
+      no_match: "Aucune note ne correspond à ce filtre.", start_people: "Commencez par ajouter les personnes de votre foyer. Ensuite, tout le monde pourra leur laisser une note.",
+      first_note: "Laissez la première note : un rappel, un gribouillis ou simplement un peu d'amour.", add_people: "Ajouter des personnes",
+      tap_delete: "Touchez à nouveau pour supprimer", react: "Réagir avec {e}", reply: "Répondre", unpin: "Désépingler", pin: "Épingler", delete: "Supprimer", close: "Fermer",
+      whos_writing: "Qui écrit ?", whos_for: "Pour qui ?", your_message: "Votre message", write: "✍️ Écrire", draw: "🖍️ Dessiner",
+      placeholder: "Écrivez quelque chose de gentil…", speak: "Dicter votre message", insert: "Insérer {e}",
+      draw_hint: "Dessinez avec le doigt ou touchez un autocollant ci-dessous ✨", ink: "Encre {c}", pen_size: "Taille du crayon", undo: "Annuler le dernier trait",
+      clear_drawing: "Effacer le dessin", stickers: "Autocollants", add_sticker: "Ajouter l'autocollant {name}",
+      more_options: "Plus d'options : couleur, durée, épingler", colour: "Couleur", stays: "Durée", pin_chip: "📌 Épingler", send: "Envoyer",
+      type_name: "Saisissez un nom", add: "Ajouter", cancel: "Annuler", add_name: "Nouveau", add_your_name: "Votre nom",
+      send_to: "Envoyer à {name}", everyone_lc: "tout le monde", them: "cette personne",
+      default: "Par défaut", background: "Fond", look_lead: "Choisissez un thème de couleur pour le tableau. Il change sur chaque écran qui affiche ce tableau.",
+      own_colours: "Vos propres couleurs", colour_n: "Couleur {n}",
+      look_hint_html: "Changer une couleur l'affiche aussitôt. Sélectionnez <b>Utiliser mes couleurs</b> pour la garder.", in_use: "Utilisé", use_mine: "Utiliser mes couleurs",
+      people_lead: "Ajoutez toutes les personnes qui utilisent le tableau. Leurs noms apparaissent quand quelqu'un laisse une note.", edit_person: "Modifier la personne",
+      add_a_person: "Ajouter une personne", name_ph: "Nom, par exemple Maya", picture: "Image", picture_e: "Image {e}",
+      notify_label: "Envoyer une notification sur le téléphone quand elle reçoit une note", optional: "(facultatif)", dont_notify: "Ne pas notifier",
+      install_app: "Installez l'application Home Assistant sur un téléphone pour activer les notifications.", save_changes: "Enregistrer", add_person: "Ajouter la personne",
+      on_board: "Sur le tableau", notifies: "Notifie {x}", no_notifications: "Aucune notification", edit: "Modifier", tap_remove: "Touchez à nouveau pour retirer",
+      remove: "Retirer", no_one: "Personne pour l'instant. Ajoutez la première personne ci-dessus.", ha_users: "Utilisateurs de Home Assistant", show_ha: "Afficher les utilisateurs de Home Assistant",
+      ha_on: "Ces personnes de Home Assistant sont aussi sur le tableau.", ha_off: "Masquées. Activez pour afficher aussi les personnes de Home Assistant.",
+      from_ha: "Depuis Home Assistant", type_name_err: "Veuillez saisir un nom.",
+      mic_blocked: "Micro bloqué. La dictée nécessite HTTPS et l'autorisation du micro.", dictation: "Dictée : {e}",
+    },
+  };
+  const langOf = (hass) =>
+    String((hass && ((hass.locale && hass.locale.language) || hass.language)) || navigator.language || "en").slice(0, 2).toLowerCase();
+  const pageLang = () => langOf(document.querySelector("home-assistant") && document.querySelector("home-assistant").hass);
+  const tr = (lang, key, vars) => {
+    const table = STRINGS[lang] || STRINGS.en;
+    let s = table[key] ?? STRINGS.en[key] ?? key;
+    if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(v);
+    return s;
+  };
+  const EXPIRY_KEY = { "1h": "exp_1h", tonight: "exp_tonight", "1d": "exp_1d", "1w": "exp_1w", never: "exp_keep" };
   const AVATAR_HUES = [200, 280, 330, 20, 150, 50, 240, 100];
   const MEMBER_EMOJI = ["🙂", "😎", "🥰", "🤓", "🦊", "🐱", "🐶", "🐼", "🦄", "🐸", "🌻", "🌙", "⭐", "🚀", "🎸", "⚽", "🍩", "👵", "👴", "👶"];
   const HUES = [210, 260, 300, 340, 15, 40, 140, 175];
@@ -309,6 +483,7 @@
   .chip { display:inline-flex; align-items:center; gap:8px; padding: 7px 14px 7px 8px; border-radius: 999px; font-size: 14px; min-height:40px;
     background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); transition: background .2s, border-color .2s, transform .15s; }
   .chip.text { padding: 7px 16px; }
+  .filters .chip.text { flex-shrink: 0; }
   .chip:active { transform: scale(.96); }
   .chip.on { background: rgba(255,255,255,.26); border-color: rgba(255,255,255,.55); box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
   .chip .n { font-size: 11px; background: rgba(255,255,255,.22); border-radius: 999px; padding: 1px 7px; }
@@ -541,8 +716,8 @@
       this._lookUi = null;
     }
 
-    static getStubConfig() {
-      return { title: "Family notes" };
+    static getStubConfig(hass) {
+      return { title: tr(langOf(hass || (document.querySelector("home-assistant") || {}).hass), "stub_title") };
     }
 
     static getConfigForm() {
@@ -555,21 +730,16 @@
           { name: "background_image", selector: { text: {} } },
           { name: "show_clock", selector: { boolean: {} } },
         ],
-        computeLabel: (s) =>
-          ({
-            title: "Title",
-            height: "Height (CSS, e.g. 100vh or 720px)",
-            ambient_after: "Ambient mode after (0 = off)",
-            column_width: "Note width",
-            background_image: "Background image URL (optional)",
-            show_clock: "Show clock",
-          })[s.name],
+        computeLabel: (s) => {
+          const key = { title: "cf_title", height: "cf_height", ambient_after: "cf_ambient", column_width: "cf_column", background_image: "cf_bgimg", show_clock: "cf_clock" }[s.name];
+          return key ? tr(pageLang(), key) : undefined;
+        },
       };
     }
 
     setConfig(config) {
+      this._titleDefault = !config || config.title === undefined;
       this._config = {
-        title: "Messages",
         height: "calc(100vh - var(--header-height, 56px) - 16px)",
         ambient_after: 90,
         column_width: 300,
@@ -580,10 +750,20 @@
       if (this._built) this._applyConfig();
     }
 
+    _t(key, vars) {
+      return tr(langOf(this._hass), key, vars);
+    }
+
     set hass(hass) {
       const first = !this._hass;
       this._hass = hass;
       if (!this._built) this._build();
+      const lang = langOf(hass);
+      if (this._lang !== lang) {
+        const changed = this._lang !== undefined;
+        this._lang = lang;
+        if (changed) this._relabel();
+      }
       const sig = this._people()
         .map((p) => p.id + p.name + p.pic)
         .join("|");
@@ -702,7 +882,7 @@
       const pretty = (s) => {
         const mobile = s.startsWith("mobile_app_");
         const base = (mobile ? s.slice(11) : s).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-        return mobile ? `${base} (phone app)` : base;
+        return mobile ? this._t("phone_app", { name: base }) : base;
       };
       return svcs
         .sort((a, b) => (b.startsWith("mobile_app_") - a.startsWith("mobile_app_")) || a.localeCompare(b))
@@ -722,7 +902,7 @@
     _person(id, fallbackName) {
       const p = id && [...this._people(), ...this._haPeople()].find((x) => x.id === id);
       if (p) return p;
-      return { id: id || "home", name: fallbackName || "Home", pic: "", home: !id };
+      return { id: id || "home", name: fallbackName || this._t("home"), pic: "", home: !id };
     }
 
     _visible() {
@@ -750,16 +930,16 @@
               <div class="clock"><div class="time"></div><div class="date"></div></div>
               <div class="title"></div>
               <nav class="filters"></nav>
-              <button class="ghost-btn icon-only" data-action="look" aria-label="Background colours" title="Background colours">${ICON.palette}</button>
-              <button class="ghost-btn people-btn" data-action="people" aria-label="People">${ICON.people}<span>People</span></button>
-              <button class="new" data-action="compose">${ICON.plus}<span>Leave a note</span></button>
+              <button class="ghost-btn icon-only" data-action="look" aria-label="${this._t("bg_colours")}" title="${this._t("bg_colours")}">${ICON.palette}</button>
+              <button class="ghost-btn people-btn" data-action="people" aria-label="${this._t("people")}">${ICON.people}<span>${this._t("people")}</span></button>
+              <button class="new" data-action="compose">${ICON.plus}<span>${this._t("leave_note")}</span></button>
             </header>
             <main><div class="board"></div></main>
           </div>
           <div class="ambient" data-action="wake">
             <div class="a-time"></div><div class="a-date"></div>
             <div class="a-spot glass"></div>
-            <div class="a-hint">Tap anywhere to wake</div>
+            <div class="a-hint">${this._t("wake")}</div>
           </div>
           <div class="scrim compose-scrim" hidden></div>
           <div class="scrim detail-scrim" hidden></div>
@@ -773,13 +953,29 @@
       this._applyConfig();
     }
 
+    // The language changed while the board was open: update the fixed labels.
+    _relabel() {
+      const q = (sel) => this.shadowRoot.querySelector(sel);
+      const look = q('header [data-action="look"]');
+      look.setAttribute("aria-label", this._t("bg_colours"));
+      look.setAttribute("title", this._t("bg_colours"));
+      q('header [data-action="people"]').setAttribute("aria-label", this._t("people"));
+      q('header [data-action="people"] span').textContent = this._t("people");
+      q('header [data-action="compose"] span').textContent = this._t("leave_note");
+      q(".a-hint").textContent = this._t("wake");
+      this._applyConfig();
+      this._renderFilters();
+      this._renderBoard();
+    }
+
     _applyConfig() {
       const c = this._config || {};
       const root = this.shadowRoot.querySelector(".root");
       root.style.setProperty("--gm-height", c.height);
       root.style.setProperty("--gm-col", `${Number(c.column_width) || 300}px`);
-      this.shadowRoot.querySelector(".title").textContent = c.title || "";
-      this.shadowRoot.querySelector(".title").style.display = c.title ? "" : "none";
+      const title = this._titleDefault ? this._t("default_title") : c.title;
+      this.shadowRoot.querySelector(".title").textContent = title || "";
+      this.shadowRoot.querySelector(".title").style.display = title ? "" : "none";
       this.shadowRoot.querySelector(".clock").style.display = c.show_clock === false ? "none" : "";
       const bg = this.shadowRoot.querySelector(".bgimg");
       bg.style.backgroundImage = c.background_image ? `url("${String(c.background_image).replace(/["\\]/g, "")}")` : "";
@@ -799,10 +995,10 @@
       const me = this._me();
       const all = this._sorted();
       const count = (fn) => all.filter(fn).length;
-      let html = `<button class="chip text ${this._filter === "all" ? "on" : ""}" data-action="filter" data-f="all">All <span class="n">${all.length}</span></button>`;
+      let html = `<button class="chip text ${this._filter === "all" ? "on" : ""}" data-action="filter" data-f="all">${this._t("all")} <span class="n">${all.length}</span></button>`;
       if (me) {
         const n = count((m) => m.recipient === me.id || (m.recipient === "everyone" && m.sender !== me.id));
-        html += `<button class="chip text ${this._filter === "mine" ? "on" : ""}" data-action="filter" data-f="mine">For me <span class="n">${n}</span></button>`;
+        html += `<button class="chip text ${this._filter === "mine" ? "on" : ""}" data-action="filter" data-f="mine">${this._t("for_me")} <span class="n">${n}</span></button>`;
       }
       for (const p of this._people()) {
         html += `<button class="chip ${this._filter === p.id ? "on" : ""}" data-action="filter" data-f="${esc(p.id)}" title="${esc(p.name)}">${this._avatar(p)}<span>${esc(p.name.split(" ")[0])}</span></button>`;
@@ -817,7 +1013,7 @@
       const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto", style: "short" });
       let diff = (t - Date.now()) / 1000;
       const abs = Math.abs(diff);
-      if (!future && abs < 45) return "just now";
+      if (!future && abs < 45) return this._t("just_now");
       const units = [
         [60, "second"],
         [3600, "minute", 60],
@@ -853,13 +1049,13 @@
           return `<path d="${path}" stroke="${esc(s.c)}" stroke-width="${(s.w * W).toFixed(1)}"/>`;
         })
         .join("");
-      return `<svg class="drawing" viewBox="0 0 ${W} ${H}" role="img" aria-label="Handwritten note">${paths}</svg>`;
+      return `<svg class="drawing" viewBox="0 0 ${W} ${H}" role="img" aria-label="${this._t("handwritten")}">${paths}</svg>`;
     }
 
     _noteHTML(m, opts = {}) {
       const me = this._me();
       const s = this._person(m.sender, m.sender_name);
-      const to = m.recipient === "everyone" ? "Everyone" : this._person(m.recipient, m.recipient_name || "Someone").name;
+      const to = m.recipient === "everyone" ? this._t("everyone") : this._person(m.recipient, m.recipient_name || this._t("someone")).name;
       const forMe = me && m.recipient === me.id;
       const tint = TINTS[m.tint] || TINTS.clear;
       const len = (m.text || "").length;
@@ -869,12 +1065,12 @@
         .filter(([, who]) => who.length)
         .map(([e, who]) => `<span class="rx ${who.includes(mine) ? "mine" : ""}">${esc(e)}${who.length > 1 ? `<small>${who.length}</small>` : ""}</span>`)
         .join("");
-      const life = m.pinned ? `${ICON.pin} Pinned` : m.expires_at ? `⏳ ${esc(this._relTime(m.expires_at, true))}` : "";
+      const life = m.pinned ? `${ICON.pin} ${this._t("pinned")}` : m.expires_at ? `⏳ ${esc(this._relTime(m.expires_at, true))}` : "";
       const inner = `
           <div class="meta">
             ${this._avatar(s)}
             <div class="who"><b>${esc(s.name)}</b> → ${esc(to)}</div>
-            ${forMe ? `<span class="badge">For you</span>` : ""}
+            ${forMe ? `<span class="badge">${this._t("for_you")}</span>` : ""}
             <span class="when">${esc(this._relTime(m.created))}</span>
             ${m.pinned ? `<span class="pin">${ICON.pin}</span>` : ""}
           </div>
@@ -889,12 +1085,12 @@
       if (!this._built) return;
       const board = this.shadowRoot.querySelector(".board");
       if (this._problem === "setup") {
-        board.innerHTML = `<div class="problem glass" style="column-span:all"><div class="big">🧩</div><h2>Almost there</h2>
-          <p>Add the <b>Glass Message Board</b> integration in <b>Settings → Devices &amp; services → Add integration</b>, then reload this page.</p></div>`;
+        board.innerHTML = `<div class="problem glass" style="column-span:all"><div class="big">🧩</div><h2>${this._t("almost")}</h2>
+          <p>${this._t("setup_html")}</p></div>`;
         return;
       }
       if (this._problem) {
-        board.innerHTML = `<div class="problem glass" style="column-span:all"><h2>Couldn't load notes</h2><p>${esc(this._problem)}</p></div>`;
+        board.innerHTML = `<div class="problem glass" style="column-span:all"><h2>${this._t("cant_load")}</h2><p>${esc(this._problem)}</p></div>`;
         return;
       }
       if (!this._loaded) {
@@ -906,10 +1102,10 @@
         const noPeople = !this._people().length;
         const fresh = !this._messages.size;
         board.innerHTML = `<div class="empty glass" style="column-span:all"><div class="big">${fresh && noPeople ? "👋" : "✨"}</div>
-          <h2>${!fresh ? "Nothing here" : noPeople ? "Welcome to your message board" : "The board is clear"}</h2>
-          <p>${!fresh ? "No notes match this filter." : noPeople ? "Start by adding the people in your home. Then anyone can leave them a note." : "Leave the first note: a reminder, a doodle, or just a little love."}</p>
-          ${fresh ? `<div class="cta">${noPeople ? `<button class="new" data-action="people">${ICON.people}<span>Add people</span></button>` : ""}
-            <button class="${noPeople ? "ghost-btn" : "new"}" data-action="compose">${ICON.plus}<span>Leave a note</span></button></div>` : ""}</div>`;
+          <h2>${this._t(!fresh ? "nothing_here" : noPeople ? "welcome" : "board_clear")}</h2>
+          <p>${this._t(!fresh ? "no_match" : noPeople ? "start_people" : "first_note")}</p>
+          ${fresh ? `<div class="cta">${noPeople ? `<button class="new" data-action="people">${ICON.people}<span>${this._t("add_people")}</span></button>` : ""}
+            <button class="${noPeople ? "ghost-btn" : "new"}" data-action="compose">${ICON.plus}<span>${this._t("leave_note")}</span></button></div>` : ""}</div>`;
         return;
       }
       const animate = !this._renderedOnce;
@@ -974,7 +1170,7 @@
             this._call({ type: "glass_messages/delete", message_id: this._openId }).then((ok) => ok && this._closeDetail());
           } else {
             el.dataset.confirm = "1";
-            el.querySelector("span").textContent = "Tap again to delete";
+            el.querySelector("span").textContent = this._t("tap_delete");
           }
           break;
         case "reply": {
@@ -1042,13 +1238,13 @@
       scrim.innerHTML = `
         <div class="detail glass${settled}" style="--tint:${TINTS[m.tint] || TINTS.clear}">
           ${this._noteHTML(m, { bare: true })}
-          <div class="reactbar">${REACTIONS.map((e) => `<button class="${reacted(e) ? "mine" : ""}" data-action="react" data-emoji="${e}" aria-label="React ${e}">${e}</button>`).join("")}</div>
+          <div class="reactbar">${REACTIONS.map((e) => `<button class="${reacted(e) ? "mine" : ""}" data-action="react" data-emoji="${e}" aria-label="${this._t("react", { e })}">${e}</button>`).join("")}</div>
           <div class="actions">
-            ${m.sender ? `<button data-action="reply">${ICON.reply}<span>Reply</span></button>` : ""}
-            <button data-action="pin">${ICON.pin}<span>${m.pinned ? "Unpin" : "Pin"}</span></button>
-            ${canEdit ? `<button class="danger" data-action="delete">${ICON.trash}<span>Delete</span></button>` : ""}
+            ${m.sender ? `<button data-action="reply">${ICON.reply}<span>${this._t("reply")}</span></button>` : ""}
+            <button data-action="pin">${ICON.pin}<span>${this._t(m.pinned ? "unpin" : "pin")}</span></button>
+            ${canEdit ? `<button class="danger" data-action="delete">${ICON.trash}<span>${this._t("delete")}</span></button>` : ""}
             <span style="flex:1"></span>
-            <button data-action="close-detail">${ICON.close}<span>Close</span></button>
+            <button data-action="close-detail">${ICON.close}<span>${this._t("close")}</span></button>
           </div>
           <div class="err" style="margin-top:10px"></div>
         </div>`;
@@ -1095,54 +1291,54 @@
       const scrim = this.shadowRoot.querySelector(".compose-scrim");
       scrim.innerHTML = `
         <div class="sheet glass">
-          <div class="sheet-head"><h2>Leave a note</h2><button class="icon-btn" data-action="c-close" aria-label="Close">${ICON.close}</button></div>
+          <div class="sheet-head"><h2>${this._t("leave_note")}</h2><button class="icon-btn" data-action="c-close" aria-label="${this._t("close")}">${ICON.close}</button></div>
           <section class="step">
-            <h3 class="step-h"><i>1</i>Who's writing?</h3>
+            <h3 class="step-h"><i>1</i>${this._t("whos_writing")}</h3>
             <div class="tiles c-from"></div>
           </section>
           <section class="step">
-            <h3 class="step-h"><i>2</i>Who's it for?</h3>
+            <h3 class="step-h"><i>2</i>${this._t("whos_for")}</h3>
             <div class="tiles c-to"></div>
           </section>
           <section class="step">
-            <h3 class="step-h"><i>3</i>Your message</h3>
-            <div class="tabs"><button data-action="c-mode" data-mode="write">✍️ Write</button><button data-action="c-mode" data-mode="draw">🖍️ Draw</button></div>
+            <h3 class="step-h"><i>3</i>${this._t("your_message")}</h3>
+            <div class="tabs"><button data-action="c-mode" data-mode="write">${this._t("write")}</button><button data-action="c-mode" data-mode="draw">${this._t("draw")}</button></div>
             <div class="pane-write">
-              <textarea id="gm-c-text" maxlength="2000" placeholder="Write something nice…"></textarea>
+              <textarea id="gm-c-text" maxlength="2000" placeholder="${this._t("placeholder")}"></textarea>
               <div class="tools">
-                <button class="icon-btn c-mic" data-action="c-mic" aria-label="Speak your message" title="Speak your message">${ICON.mic}</button>
-                ${INSERT_EMOJI.map((e) => `<button class="emoji" data-action="c-emoji" data-emoji="${e}" aria-label="Insert ${e}">${e}</button>`).join("")}
+                <button class="icon-btn c-mic" data-action="c-mic" aria-label="${this._t("speak")}" title="${this._t("speak")}">${ICON.mic}</button>
+                ${INSERT_EMOJI.map((e) => `<button class="emoji" data-action="c-emoji" data-emoji="${e}" aria-label="${this._t("insert", { e })}">${e}</button>`).join("")}
                 <span class="count">0 / 2000</span>
               </div>
             </div>
             <div class="pane-draw" hidden>
-              <div class="pad"><canvas></canvas><div class="hint">Draw with your finger, or tap a sticker below ✨</div></div>
+              <div class="pad"><canvas></canvas><div class="hint">${this._t("draw_hint")}</div></div>
               <div class="tools">
-                ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="Ink ${c}"></button>`).join("")}
+                ${INK.map((c) => `<button class="swatch" data-action="c-ink" data-ink="${c}" style="background:${c}" aria-label="${this._t("ink", { c })}"></button>`).join("")}
                 <span style="width:10px"></span>
-                ${WIDTHS.map((w) => `<button class="width" data-action="c-width" data-w="${w}" aria-label="Pen size"><i style="width:${Math.round(w * 600)}px;height:${Math.round(w * 600)}px"></i></button>`).join("")}
+                ${WIDTHS.map((w) => `<button class="width" data-action="c-width" data-w="${w}" aria-label="${this._t("pen_size")}"><i style="width:${Math.round(w * 600)}px;height:${Math.round(w * 600)}px"></i></button>`).join("")}
                 <span style="flex:1"></span>
-                <button class="icon-btn" data-action="c-undo" aria-label="Undo">${ICON.undo}</button>
-                <button class="icon-btn" data-action="c-clear" aria-label="Clear drawing">${ICON.trash}</button>
+                <button class="icon-btn" data-action="c-undo" aria-label="${this._t("undo")}">${ICON.undo}</button>
+                <button class="icon-btn" data-action="c-clear" aria-label="${this._t("clear_drawing")}">${ICON.trash}</button>
               </div>
               <div class="sticker-shelf">
-                <div class="label">Stickers</div>
+                <div class="label">${this._t("stickers")}</div>
                 <div class="sticker-row">${Object.entries(STICKERS)
-                  .map(([k, st]) => `<button class="sticker" data-action="c-sticker" data-sticker="${k}" aria-label="Add ${esc(st.name)} sticker" title="${esc(st.name)}">${this._drawingSVG({ ar: 1, strokes: st.parts.map(([c, pts]) => ({ c, w: 0.05, p: pts })) })}</button>`)
+                  .map(([k, st]) => `<button class="sticker" data-action="c-sticker" data-sticker="${k}" aria-label="${esc(this._t("add_sticker", { name: this._t("st_" + k) }))}" title="${esc(this._t("st_" + k))}">${this._drawingSVG({ ar: 1, strokes: st.parts.map(([c, pts]) => ({ c, w: 0.05, p: pts })) })}</button>`)
                   .join("")}</div>
               </div>
             </div>
           </section>
-          <button class="more" data-action="c-more">${ICON.chevron}<span>More options: colour, how long it stays, pin</span></button>
+          <button class="more" data-action="c-more">${ICON.chevron}<span>${this._t("more_options")}</span></button>
           <div class="c-options" hidden>
-            <div class="row"><label>Colour</label><div class="chips">${Object.keys(TINTS)
-              .map((t) => `<button class="tint-dot" data-action="c-tint" data-tint="${t}" style="--tint:${TINTS[t]}" aria-label="${t}" title="${t}"></button>`)
+            <div class="row"><label>${this._t("colour")}</label><div class="chips">${Object.keys(TINTS)
+              .map((t) => `<button class="tint-dot" data-action="c-tint" data-tint="${t}" style="--tint:${TINTS[t]}" aria-label="${this._t("tint_" + t)}" title="${this._t("tint_" + t)}"></button>`)
               .join("")}</div></div>
-            <div class="row"><label>Stays</label><div class="chips">${EXPIRY.map(
-              (x) => `<button class="chip text" data-action="c-exp" data-exp="${x.k}">${x.label}</button>`
-            ).join("")}<button class="chip text c-pin" data-action="c-pin">📌 Pin</button></div></div>
+            <div class="row"><label>${this._t("stays")}</label><div class="chips">${EXPIRY.map(
+              (x) => `<button class="chip text" data-action="c-exp" data-exp="${x.k}">${this._t(EXPIRY_KEY[x.k])}</button>`
+            ).join("")}<button class="chip text c-pin" data-action="c-pin">${this._t("pin_chip")}</button></div></div>
           </div>
-          <div class="sheet-foot"><span class="err"></span><button class="primary" data-action="c-send">${ICON.send}<span class="send-label">Send</span></button></div>
+          <div class="sheet-foot"><span class="err"></span><button class="primary" data-action="c-send">${ICON.send}<span class="send-label">${this._t("send")}</span></button></div>
         </div>`;
       scrim.hidden = false;
       scrim.onclick = (e) => {
@@ -1182,8 +1378,8 @@
     _addTile(which, label) {
       const c = this._compose;
       if (c.adding === which) {
-        return `<div class="quick-add"><input class="field q-name" id="gm-q-${which}" maxlength="40" placeholder="Type a name" value="${esc(c.newName)}" autocomplete="off">
-          <button class="small-btn" data-action="c-add-save">Add</button><button class="icon-btn" data-action="c-add-cancel" aria-label="Cancel">${ICON.close}</button></div>`;
+        return `<div class="quick-add"><input class="field q-name" id="gm-q-${which}" maxlength="40" placeholder="${this._t("type_name")}" value="${esc(c.newName)}" autocomplete="off">
+          <button class="small-btn" data-action="c-add-save">${this._t("add")}</button><button class="icon-btn" data-action="c-add-cancel" aria-label="${this._t("cancel")}">${ICON.close}</button></div>`;
       }
       return `<button class="tile add" data-action="c-add" data-which="${which}"><span class="ring">+</span><span>${label}</span></button>`;
     }
@@ -1196,14 +1392,14 @@
       const people = this._people();
       if (full) {
         root.querySelector(".c-from").innerHTML =
-          people.map((p) => this._tile(p, "c-from", c.from === p.id)).join("") + this._addTile("from", people.length ? "Add name" : "Add your name");
+          people.map((p) => this._tile(p, "c-from", c.from === p.id)).join("") + this._addTile("from", this._t(people.length ? "add_name" : "add_your_name"));
         root.querySelector(".c-to").innerHTML =
-          `<button class="tile ${c.to === "everyone" ? "on" : ""}" data-action="c-to" data-id="everyone" aria-pressed="${c.to === "everyone"}"><span class="everyone-av">🏡</span><span>Everyone</span></button>` +
+          `<button class="tile ${c.to === "everyone" ? "on" : ""}" data-action="c-to" data-id="everyone" aria-pressed="${c.to === "everyone"}"><span class="everyone-av">🏡</span><span>${this._t("everyone_tile")}</span></button>` +
           people
             .filter((p) => p.id !== c.from)
             .map((p) => this._tile(p, "c-to", c.to === p.id))
             .join("") +
-          this._addTile("to", "Add name");
+          this._addTile("to", this._t("add_name"));
         if (c.adding) {
           const input = root.querySelector(`#gm-q-${c.adding}`);
           if (input && this.shadowRoot.activeElement !== input) {
@@ -1226,8 +1422,8 @@
       root.querySelector(".pad .hint").style.display = c.strokes.length ? "none" : "";
       const ta = root.querySelector("textarea");
       root.querySelector(".count").textContent = `${ta.value.length} / 2000`;
-      const toName = c.to === "everyone" ? "everyone" : this._person(c.to, "them").name;
-      root.querySelector(".send-label").textContent = `Send to ${toName}`;
+      const toName = c.to === "everyone" ? this._t("everyone_lc") : this._person(c.to, this._t("them")).name;
+      root.querySelector(".send-label").textContent = this._t("send_to", { name: toName });
       const ready = ta.value.trim().length > 0 || c.strokes.length > 0;
       root.querySelector("[data-action=c-send]").disabled = !ready || c.sending;
     }
@@ -1403,26 +1599,26 @@
       const option = (key, t) => `
         <button class="bg-opt ${current === key ? "on" : ""}" data-action="l-preset" data-preset="${key}" aria-pressed="${current === key}">
           <span class="bg-prev" style="${this._prevStyle(t)}"><i></i><i></i></span>
-          <span class="bg-name"><span>${esc(t.name)}${key === DEFAULT_BACKGROUND ? " <small>Default</small>" : ""}</span>${current === key ? ICON.check : ""}</span>
+          <span class="bg-name"><span>${esc(this._t("bg_" + key))}${key === DEFAULT_BACKGROUND ? ` <small>${this._t("default")}</small>` : ""}</span>${current === key ? ICON.check : ""}</span>
         </button>`;
       scrim.innerHTML = `
         <div class="sheet glass${settled}">
-          <div class="sheet-head"><h2>Background</h2><button class="icon-btn" data-action="l-close" aria-label="Close">${ICON.close}</button></div>
-          <p class="lead">Pick a colour theme for the board. It changes on every screen showing this board.</p>
+          <div class="sheet-head"><h2>${this._t("background")}</h2><button class="icon-btn" data-action="l-close" aria-label="${this._t("close")}">${ICON.close}</button></div>
+          <p class="lead">${this._t("look_lead")}</p>
           <div class="bg-grid">${Object.entries(BACKGROUNDS).map(([k, t]) => option(k, t)).join("")}</div>
           <section class="people-sec card-inset">
-            <h3>Your own colours</h3>
+            <h3>${this._t("own_colours")}</h3>
             <div class="custom-row">
               ${ui.custom
-                .map((c, i) => `<label class="color-field">Colour ${i + 1}<input id="gm-l-c${i}" type="color" value="${esc(c)}" data-ci="${i}"></label>`)
+                .map((c, i) => `<label class="color-field">${this._t("colour_n", { n: i + 1 })}<input id="gm-l-c${i}" type="color" value="${esc(c)}" data-ci="${i}"></label>`)
                 .join("")}
               <span class="bg-prev custom-prev" style="${this._prevStyle(this._resolveBackground({ preset: "custom", colors: ui.custom }))};flex:1;min-width:120px;height:48px"><i></i></span>
             </div>
-            <p class="muted">Changing a colour previews it right away. Select <b>Use my colours</b> to keep it.</p>
+            <p class="muted">${this._t("look_hint_html")}</p>
             <div class="pform-foot">
               <span class="err">${esc(ui.error)}</span>
-              ${current === "custom" ? `<span class="muted">${ICON.check} In use</span>` : ""}
-              <button class="primary" data-action="l-custom">Use my colours</button>
+              ${current === "custom" ? `<span class="muted">${ICON.check} ${this._t("in_use")}</span>` : ""}
+              <button class="primary" data-action="l-custom">${this._t("use_mine")}</button>
             </div>
           </section>
         </div>`;
@@ -1510,51 +1706,51 @@
       const settled = scrim.querySelector(".sheet") ? " settled" : "";
       scrim.innerHTML = `
         <div class="sheet glass${settled}">
-          <div class="sheet-head"><h2>People</h2><button class="icon-btn" data-action="p-close" aria-label="Close">${ICON.close}</button></div>
-          <p class="lead">Add everyone who uses the board. Their names appear when someone leaves a note.</p>
+          <div class="sheet-head"><h2>${this._t("people")}</h2><button class="icon-btn" data-action="p-close" aria-label="${this._t("close")}">${ICON.close}</button></div>
+          <p class="lead">${this._t("people_lead")}</p>
           <section class="card-inset">
-            <h3>${ui.editId ? "Edit person" : "Add a person"}</h3>
+            <h3>${this._t(ui.editId ? "edit_person" : "add_a_person")}</h3>
             <div class="pform-top">
               ${this._avatar({ id: "preview", name: ui.name || "?", emoji: ui.emoji, hue: ui.hue }, "xl")}
-              <input id="gm-p-name" class="field" maxlength="40" placeholder="Name, for example Maya" value="${esc(ui.name)}" autocomplete="off">
+              <input id="gm-p-name" class="field" maxlength="40" placeholder="${this._t("name_ph")}" value="${esc(ui.name)}" autocomplete="off">
             </div>
-            <div class="label">Picture</div>
-            <div class="emoji-grid">${MEMBER_EMOJI.map((e) => `<button class="emoji ${e === ui.emoji ? "on" : ""}" data-action="p-emoji" data-emoji="${e}" aria-label="Picture ${e}">${e}</button>`).join("")}</div>
-            <div class="label">Colour</div>
-            <div class="hues">${HUES.map((h) => `<button class="hue ${h === ui.hue ? "on" : ""}" data-action="p-hue" data-hue="${h}" style="--h:${h}" aria-label="Colour"></button>`).join("")}</div>
-            <div class="label">Send a phone notification when they get a note <span class="opt">(optional)</span></div>
+            <div class="label">${this._t("picture")}</div>
+            <div class="emoji-grid">${MEMBER_EMOJI.map((e) => `<button class="emoji ${e === ui.emoji ? "on" : ""}" data-action="p-emoji" data-emoji="${e}" aria-label="${this._t("picture_e", { e })}">${e}</button>`).join("")}</div>
+            <div class="label">${this._t("colour")}</div>
+            <div class="hues">${HUES.map((h) => `<button class="hue ${h === ui.hue ? "on" : ""}" data-action="p-hue" data-hue="${h}" style="--h:${h}" aria-label="${this._t("colour")}"></button>`).join("")}</div>
+            <div class="label">${this._t("notify_label")} <span class="opt">${this._t("optional")}</span></div>
             <select id="gm-p-notify" class="field">
-              <option value="">Don't notify</option>
+              <option value="">${this._t("dont_notify")}</option>
               ${services.map((s) => `<option value="${esc(s.value)}" ${s.value === ui.notify ? "selected" : ""}>${esc(s.label)}</option>`).join("")}
             </select>
-            ${services.length ? "" : `<p class="muted">Install the Home Assistant app on a phone to enable notifications.</p>`}
+            ${services.length ? "" : `<p class="muted">${this._t("install_app")}</p>`}
             <div class="pform-foot">
               <span class="err">${esc(ui.error)}</span>
-              ${ui.editId ? `<button class="ghost-btn" data-action="p-cancel">Cancel</button>` : ""}
-              <button class="primary" data-action="p-save">${ui.editId ? "Save changes" : `${ICON.plus}<span>Add person</span>`}</button>
+              ${ui.editId ? `<button class="ghost-btn" data-action="p-cancel">${this._t("cancel")}</button>` : ""}
+              <button class="primary" data-action="p-save">${ui.editId ? this._t("save_changes") : `${ICON.plus}<span>${this._t("add_person")}</span>`}</button>
             </div>
           </section>
           <section class="people-sec">
-            <h3>On the board</h3>
+            <h3>${this._t("on_board")}</h3>
             ${
               members.length
                 ? members
                     .map(
                       (m) => `<div class="person-row">${this._avatar({ id: m.id, name: m.name, emoji: m.emoji, hue: m.hue })}
-                  <div class="pinfo"><b>${esc(m.name)}</b><small>${m.notify && m.notify.length ? `Notifies ${esc(label(m.notify[0]))}` : "No notifications"}</small></div>
-                  <button class="ghost-btn" data-action="p-edit" data-id="${esc(m.id)}">${ICON.edit}<span>Edit</span></button>
-                  <button class="ghost-btn danger" data-action="p-remove" data-id="${esc(m.id)}">${ui.confirm === m.id ? "Tap again to remove" : "Remove"}</button></div>`
+                  <div class="pinfo"><b>${esc(m.name)}</b><small>${m.notify && m.notify.length ? this._t("notifies", { x: esc(label(m.notify[0])) }) : this._t("no_notifications")}</small></div>
+                  <button class="ghost-btn" data-action="p-edit" data-id="${esc(m.id)}">${ICON.edit}<span>${this._t("edit")}</span></button>
+                  <button class="ghost-btn danger" data-action="p-remove" data-id="${esc(m.id)}">${this._t(ui.confirm === m.id ? "tap_remove" : "remove")}</button></div>`
                     )
                     .join("")
-                : `<p class="muted">No one yet. Add the first person above.</p>`
+                : `<p class="muted">${this._t("no_one")}</p>`
             }
           </section>
           ${
             ha.length
               ? `<section class="people-sec">
-            <div class="sec-head"><h3>Home Assistant users</h3><button class="switch ${haOn ? "on" : ""}" data-action="p-ha" role="switch" aria-checked="${haOn}" aria-label="Show Home Assistant users"></button></div>
-            <p class="muted">${haOn ? "These people from Home Assistant are also on the board." : "Hidden. Turn on to also show people from Home Assistant."}</p>
-            ${haOn ? ha.map((p) => `<div class="person-row">${this._avatar(p)}<div class="pinfo"><b>${esc(p.name)}</b><small>From Home Assistant</small></div></div>`).join("") : ""}
+            <div class="sec-head"><h3>${this._t("ha_users")}</h3><button class="switch ${haOn ? "on" : ""}" data-action="p-ha" role="switch" aria-checked="${haOn}" aria-label="${this._t("show_ha")}"></button></div>
+            <p class="muted">${this._t(haOn ? "ha_on" : "ha_off")}</p>
+            ${haOn ? ha.map((p) => `<div class="person-row">${this._avatar(p)}<div class="pinfo"><b>${esc(p.name)}</b><small>${this._t("from_ha")}</small></div></div>`).join("") : ""}
           </section>`
               : ""
           }
@@ -1568,7 +1764,7 @@
       if (!ui) return;
       const name = (ui.name || "").trim();
       if (!name) {
-        ui.error = "Please type a name.";
+        ui.error = this._t("type_name_err");
         return this._renderPeople();
       }
       const payload = { type: "glass_messages/member/save", name, emoji: ui.emoji, hue: ui.hue, notify: ui.notify ? [ui.notify] : [] };
@@ -1792,7 +1988,7 @@
       };
       rec.onerror = (e) => {
         const err = sheet.querySelector(".err");
-        if (err) err.textContent = e.error === "not-allowed" ? "Microphone blocked. Dictation needs HTTPS and mic permission." : `Dictation: ${e.error}`;
+        if (err) err.textContent = e.error === "not-allowed" ? this._t("mic_blocked") : this._t("dictation", { e: e.error });
       };
       rec.onend = () => {
         this._rec = null;

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "glass_messages"
-VERSION = "1.2.4"
+VERSION = "1.3.0"
 
 STORAGE_KEY = f"{DOMAIN}.messages"
 STORAGE_VERSION = 1

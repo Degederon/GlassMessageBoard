@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Glass Message Board",
+        "description": "Añade un tablón de mensajes para el hogar. La tarjeta de cristal se carga automáticamente: añádela a un panel como «Glass Message Board»."
+      }
+    },
+    "abort": {
+      "already_configured": "El tablón de mensajes ya está configurado.",
+      "single_instance_allowed": "El tablón de mensajes ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Notificaciones y valores predeterminados",
+        "description": "Para cada persona, elige el servicio o servicios de notificación que deben avisarle cuando le dejen una nota (por ejemplo notify.mobile_app_pixel). Las notas para «Todos» avisan a todas las personas de abajo excepto a quien la envía.",
+        "data": {
+          "notify_everyone": "Servicios adicionales para notas a todos",
+          "notify_url": "Abrir esta ruta del panel al tocar una notificación (p. ej. /lovelace/notes)",
+          "default_expiry_hours": "Duración predeterminada de una nota (0 = mantener)"
+        }
+      }
+    }
+  },
+  "services": {
+    "post": {
+      "name": "Dejar una nota",
+      "description": "Publica un mensaje en el tablón de cristal.",
+      "fields": {
+        "message": {
+          "name": "Mensaje"
+        },
+        "to": {
+          "name": "Para",
+          "description": "Una entidad de persona, el id de un miembro del tablón (member.xxxx) o \"everyone\"."
+        },
+        "from": {
+          "name": "De",
+          "description": "Entidad de persona o id de miembro de quien envía. Por defecto, el usuario que ejecuta la acción."
+        },
+        "sender_name": {
+          "name": "Nombre del remitente",
+          "description": "Nombre que se muestra cuando no lo envía una persona (p. ej. \"Casa\" o \"Lavadora\")."
+        },
+        "expires_in": {
+          "name": "Caduca en",
+          "description": "Minutos hasta que la nota desaparece."
+        },
+        "expires_at": {
+          "name": "Caduca a las"
+        },
+        "pinned": {
+          "name": "Fijada"
+        },
+        "tint": {
+          "name": "Tono"
+        },
+        "notify": {
+          "name": "Enviar notificaciones"
+        }
+      }
+    },
+    "delete": {
+      "name": "Borrar una nota",
+      "fields": {
+        "id": {
+          "name": "ID del mensaje"
+        }
+      }
+    },
+    "pin": {
+      "name": "Fijar o soltar una nota",
+      "fields": {
+        "id": {
+          "name": "ID del mensaje"
+        },
+        "pinned": {
+          "name": "Fijada"
+        }
+      }
+    },
+    "react": {
+      "name": "Reaccionar a una nota",
+      "fields": {
+        "id": {
+          "name": "ID del mensaje"
+        },
+        "emoji": {
+          "name": "Emoji"
+        },
+        "from": {
+          "name": "De"
+        }
+      }
+    },
+    "clear": {
+      "name": "Vaciar el tablón",
+      "description": "Quita todas las notas (las fijadas se mantienen salvo que se incluyan).",
+      "fields": {
+        "include_pinned": {
+          "name": "Incluir fijadas"
+        }
+      }
+    },
+    "set_background": {
+      "name": "Cambiar el fondo",
+      "description": "Cambia el tema de color del tablón en todas las pantallas. Usa un tema o \"custom\" con tres colores.",
+      "fields": {
+        "preset": {
+          "name": "Tema"
+        },
+        "colors": {
+          "name": "Colores propios",
+          "description": "Solo para \"custom\". Tres colores como \"#ff7a45, #ff3d77, #ffc15e\"."
+        }
+      }
+    }
+  }
+}

@@ -6,7 +6,8 @@
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-18BCF2.svg?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-1.2.4-6E56CF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-6E56CF.svg)](CHANGELOG.md)
+[![Languages](https://img.shields.io/badge/languages-English%20%7C%20Deutsch%20%7C%20Espa%C3%B1ol%20%7C%20Fran%C3%A7ais-2E9E6B.svg)](#languages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -14,6 +15,8 @@
 Beautiful design and ease of use. https://github.com/Degederon/GlassMessageBoard
 
 Glass Message Board turns a wall-mounted tablet into a shared space for household notes. Family members can type, dictate or hand-draw messages, address them to one person or to everyone, and react to each other's notes. Important notes can be pinned; everything else expires on schedule. When the tablet is idle, the board fades into an ambient clock that highlights recent notes.
+
+**Languages:** English, German (Deutsch), Spanish (Español) and French (Français). The board, its settings and its notifications follow your Home Assistant language.
 
 ## Contents
 
@@ -28,6 +31,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 - [Automation examples](#automation-examples)
 - [Permissions and data](#permissions-and-data)
 - [WebSocket API](#websocket-api)
+- [Languages](#languages)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
@@ -46,6 +50,7 @@ Glass Message Board turns a wall-mounted tablet into a shared space for househol
 | **Ambient mode** | After a configurable idle period, the board shows a large clock and a rotating spotlight of notes, prioritizing those for the current user. |
 | **Automation support** | Actions, a new-message event and per-person sensors let automations post notes and respond to them. |
 | **Mobile notifications** | Pick a person's phone on the People screen and they get a push notification when a note is left for them. |
+| **Four languages** | English, German, Spanish and French: the board, its settings, its actions and its notifications follow your Home Assistant language. |
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/compose.png" alt="The three-step note form" width="49%">
@@ -435,6 +440,21 @@ Custom frontends can use the following commands:
 | `glass_messages/member/save` | Adds or updates a board member. |
 | `glass_messages/member/remove` | Removes a board member. |
 | `glass_messages/settings` | Shows or hides Home Assistant users, and changes the background. |
+
+## Languages
+
+Glass Message Board speaks four languages. Other languages show in English.
+
+| Language | The board | Setup and options | Actions | Phone notifications |
+|---|---|---|---|---|
+| English | ✓ | ✓ | ✓ | ✓ |
+| German (Deutsch) | ✓ | ✓ | ✓ | ✓ |
+| Spanish (Español) | ✓ | ✓ | ✓ | ✓ |
+| French (Français) | ✓ | ✓ | ✓ | ✓ |
+
+- **The board** covers everything it says itself: buttons, the note form, stickers, background names, the People screen, the ambient screen and the card's settings. Notes and names stay exactly as people write them.
+- **The board** follows the language in each person's Home Assistant profile: select your name at the bottom of the sidebar and set **Language**. Dates and times already followed it.
+- **Setup, actions and phone notifications** follow Home Assistant's own language, under **Settings → System → General**.
 
 ## Troubleshooting
 

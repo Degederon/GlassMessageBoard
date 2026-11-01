@@ -23,5 +23,99 @@
         }
       }
     }
+  },
+  "services": {
+    "post": {
+      "name": "Leave a note",
+      "description": "Post a message to the glass board.",
+      "fields": {
+        "message": {
+          "name": "Message"
+        },
+        "to": {
+          "name": "To",
+          "description": "A person entity, a board member id (member.xxxx), or \"everyone\"."
+        },
+        "from": {
+          "name": "From",
+          "description": "Person entity or board member id of the sender. Defaults to the user running the action."
+        },
+        "sender_name": {
+          "name": "Sender name",
+          "description": "Name to show when not sent by a person (e.g. \"Home\" or \"Washer\")."
+        },
+        "expires_in": {
+          "name": "Expires in",
+          "description": "Minutes until the note disappears."
+        },
+        "expires_at": {
+          "name": "Expires at"
+        },
+        "pinned": {
+          "name": "Pinned"
+        },
+        "tint": {
+          "name": "Tint"
+        },
+        "notify": {
+          "name": "Send notifications"
+        }
+      }
+    },
+    "delete": {
+      "name": "Delete a note",
+      "fields": {
+        "id": {
+          "name": "Message ID"
+        }
+      }
+    },
+    "pin": {
+      "name": "Pin or unpin a note",
+      "fields": {
+        "id": {
+          "name": "Message ID"
+        },
+        "pinned": {
+          "name": "Pinned"
+        }
+      }
+    },
+    "react": {
+      "name": "React to a note",
+      "fields": {
+        "id": {
+          "name": "Message ID"
+        },
+        "emoji": {
+          "name": "Emoji"
+        },
+        "from": {
+          "name": "From"
+        }
+      }
+    },
+    "clear": {
+      "name": "Clear the board",
+      "description": "Remove all notes (pinned notes are kept unless included).",
+      "fields": {
+        "include_pinned": {
+          "name": "Include pinned"
+        }
+      }
+    },
+    "set_background": {
+      "name": "Change the background",
+      "description": "Switch the board's colour theme on every screen. Use a preset, or \"custom\" with three colours.",
+      "fields": {
+        "preset": {
+          "name": "Preset"
+        },
+        "colors": {
+          "name": "Custom colours",
+          "description": "Only for \"custom\". Three colours like \"#ff7a45,"
+        }
+      }
+    }
   }
 }
