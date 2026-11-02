@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Glass Message Board",
+        "description": "Fügt eine Pinnwand für den Haushalt hinzu. Die Glas-Karte wird automatisch geladen. Füge sie einem Dashboard als „Glass Message Board“ hinzu."
+      }
+    },
+    "abort": {
+      "already_configured": "Die Pinnwand ist bereits eingerichtet.",
+      "single_instance_allowed": "Die Pinnwand ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Benachrichtigungen und Standards",
+        "description": "Wähle für jede Person den oder die Benachrichtigungsdienste, die sie anpingen, wenn eine Notiz für sie hinterlassen wird (zum Beispiel notify.mobile_app_pixel). Notizen an „Alle“ pingen alle Personen unten außer dem Absender.",
+        "data": {
+          "notify_everyone": "Zusätzliche Dienste für Notizen an alle",
+          "notify_url": "Diesen Dashboard-Pfad öffnen, wenn auf eine Benachrichtigung getippt wird (z. B. /lovelace/notes)",
+          "default_expiry_hours": "Standard-Lebensdauer einer Notiz (0 = behalten)"
+        }
+      }
+    }
+  },
+  "services": {
+    "post": {
+      "name": "Notiz schreiben",
+      "description": "Eine Nachricht an die Glas-Pinnwand senden.",
+      "fields": {
+        "message": {
+          "name": "Nachricht"
+        },
+        "to": {
+          "name": "An",
+          "description": "Eine Personen-Entität, die ID eines Pinnwand-Mitglieds (member.xxxx) oder \"everyone\"."
+        },
+        "from": {
+          "name": "Von",
+          "description": "Personen-Entität oder Mitglieds-ID des Absenders. Standard ist der Benutzer, der die Aktion ausführt."
+        },
+        "sender_name": {
+          "name": "Name des Absenders",
+          "description": "Name, der angezeigt wird, wenn keine Person sendet (z. B. \"Zuhause\" oder \"Waschmaschine\")."
+        },
+        "expires_in": {
+          "name": "Läuft ab in",
+          "description": "Minuten, bis die Notiz verschwindet."
+        },
+        "expires_at": {
+          "name": "Läuft ab um"
+        },
+        "pinned": {
+          "name": "Angeheftet"
+        },
+        "tint": {
+          "name": "Farbton"
+        },
+        "notify": {
+          "name": "Benachrichtigungen senden"
+        }
+      }
+    },
+    "delete": {
+      "name": "Notiz löschen",
+      "fields": {
+        "id": {
+          "name": "Nachrichten-ID"
+        }
+      }
+    },
+    "pin": {
+      "name": "Notiz anheften oder lösen",
+      "fields": {
+        "id": {
+          "name": "Nachrichten-ID"
+        },
+        "pinned": {
+          "name": "Angeheftet"
+        }
+      }
+    },
+    "react": {
+      "name": "Auf eine Notiz reagieren",
+      "fields": {
+        "id": {
+          "name": "Nachrichten-ID"
+        },
+        "emoji": {
+          "name": "Emoji"
+        },
+        "from": {
+          "name": "Von"
+        }
+      }
+    },
+    "clear": {
+      "name": "Pinnwand leeren",
+      "description": "Alle Notizen entfernen (angeheftete Notizen bleiben, außer sie werden einbezogen).",
+      "fields": {
+        "include_pinned": {
+          "name": "Angeheftete einbeziehen"
+        }
+      }
+    },
+    "set_background": {
+      "name": "Hintergrund ändern",
+      "description": "Das Farbthema der Pinnwand auf jedem Bildschirm wechseln. Nimm eine Vorlage oder \"custom\" mit drei Farben.",
+      "fields": {
+        "preset": {
+          "name": "Vorlage"
+        },
+        "colors": {
+          "name": "Eigene Farben",
+          "description": "Nur für \"custom\". Drei Farben wie \"#ff7a45, #ff3d77, #ffc15e\"."
+        }
+      }
+    }
+  }
+}

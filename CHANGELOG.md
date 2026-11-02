@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.3.0] - 2026-11-01
+
+### Added
+
+- German, Spanish and French. The board's buttons, note form, stickers, background names, People screen, ambient screen and card settings follow each person's Home Assistant language; the setup and options screens, the actions and phone notifications follow Home Assistant's language. English is unchanged.
+
+### Fixed
+
+- On narrow screens, filter buttons no longer squeeze their text onto two lines.
+
 ## [1.2.4] - 2026-11-01
 
 ### Added
