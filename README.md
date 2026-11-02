@@ -456,6 +456,26 @@ Glass Message Board speaks four languages. Other languages show in English.
 - **The board** follows the language in each person's Home Assistant profile: select your name at the bottom of the sidebar and set **Language**. Dates and times already followed it.
 - **Setup, actions and phone notifications** follow Home Assistant's own language, under **Settings → System → General**.
 
+The board and the note form in each language (the notes are examples a household would write):
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/de-board.jpg" alt="The board in Deutsch" width="100%"></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/de-write.jpg" alt="Writing a note in Deutsch" width="100%"></td>
+</tr>
+<tr><td colspan="2"><sub><b>Deutsch.</b> Die Pinnwand und das Notizformular auf Deutsch.</sub></td></tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/es-board.jpg" alt="The board in Español" width="100%"></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/es-write.jpg" alt="Writing a note in Español" width="100%"></td>
+</tr>
+<tr><td colspan="2"><sub><b>Español.</b> El tablón y el formulario de notas en español.</sub></td></tr>
+<tr>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/fr-board.jpg" alt="The board in Français" width="100%"></td>
+<td width="50%" valign="top"><img src="https://raw.githubusercontent.com/Degederon/GlassMessageBoard/main/docs/images/languages/fr-write.jpg" alt="Writing a note in Français" width="100%"></td>
+</tr>
+<tr><td colspan="2"><sub><b>Français.</b> Le tableau et le formulaire de note en français.</sub></td></tr>
+</table>
+
 ## Troubleshooting
 
 ### A red "Configuration error" box appears instead of the board
